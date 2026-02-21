@@ -11,7 +11,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
     const accessToken = cookieStore.get("access_token")?.value;
     const refreshToken = cookieStore.get("refresh_token")?.value;
 
-    let user = null;
+    let user: { id: string; email: string; name: string; balance: number } | null = null;
 
     if (accessToken) {
         const payload = await verifyAccessToken(accessToken);

@@ -215,7 +215,7 @@ function SessionsSection() {
         <GlassCard>
             <CardHeader icon="ph:devices" title="Active Sessions" description="Devices logged into your account. Revoke any you don't recognize." />
             <div style={{ padding: "16px 20px 20px", display: "flex", flexDirection: "column", gap: 8 }}>
-                {sessions?.map((s, i) => (
+                {sessions?.map((s: NonNullable<typeof sessions>[number], i: number) => (
                     <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 13px", borderRadius: 11, background: i === 0 ? "rgba(255,107,0,0.04)" : "rgba(255,255,255,0.02)", border: i === 0 ? "1px solid rgba(255,107,0,0.1)" : "1px solid rgba(255,255,255,0.04)" }}>
                         <div style={{ width: 34, height: 34, borderRadius: 9, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                             <Icon icon={s.userAgent?.includes("Mobile") ? "ph:device-mobile" : "ph:monitor"} style={{ fontSize: 17, color: i === 0 ? "rgba(255,107,0,0.6)" : "rgba(255,255,255,0.2)" }} />
