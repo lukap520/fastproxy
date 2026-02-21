@@ -14,10 +14,6 @@ const STATS = [
     { label: "Avg. Latency", value: "—", icon: "ph:lightning", sub: "Global average" },
 ];
 
-const ACTIVITY = [
-    { label: "No recent activity", sub: "Your proxy usage and invoices will appear here", icon: "ph:clock-countdown" },
-];
-
 export default function DashboardPage() {
     const router = useRouter();
     const { data: user, isLoading, error } = trpc.auth.me.useQuery();

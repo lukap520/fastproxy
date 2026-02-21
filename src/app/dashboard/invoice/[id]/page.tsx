@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
 import { useToast } from "@/components/ui/Toast";
+import NextImage from "next/image";
 
 const CRYPTO_META: Record<string, { name: string; icon: string; symbol: string; color: string }> = {
     btc: { name: "Bitcoin", symbol: "BTC", icon: "cryptocurrency-color:btc", color: "#F7931A" },
@@ -223,7 +224,7 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
                                     <div style={{ position: "absolute", top: -4, right: -4, width: 16, height: 16, borderTop: `2px solid ${meta.color}`, borderRight: `2px solid ${meta.color}`, borderRadius: "0 3px 0 0" }} />
                                     <div style={{ position: "absolute", bottom: -4, left: -4, width: 16, height: 16, borderBottom: `2px solid ${meta.color}`, borderLeft: `2px solid ${meta.color}`, borderRadius: "0 0 0 3px" }} />
                                     <div style={{ position: "absolute", bottom: -4, right: -4, width: 16, height: 16, borderBottom: `2px solid ${meta.color}`, borderRight: `2px solid ${meta.color}`, borderRadius: "0 0 3px 0" }} />
-                                    <img src={qrUrl} alt="Payment QR code" width={170} height={170} style={{ display: "block", borderRadius: 6, imageRendering: "pixelated" as const }} />
+                                    <NextImage unoptimized src={qrUrl} alt="Payment QR code" width={170} height={170} style={{ display: "block", borderRadius: 6, imageRendering: "pixelated" }} />
                                 </div>
                                 <div style={{ textAlign: "center" as const }}>
                                     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 4 }}>

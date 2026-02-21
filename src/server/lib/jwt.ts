@@ -28,7 +28,7 @@ export async function verifyAccessToken(token: string): Promise<TokenPayload | n
     try {
         const { payload } = await jwtVerify(token, ACCESS_SECRET);
         return payload as unknown as TokenPayload;
-    } catch (error) {
+    } catch {
         return null;
     }
 }
@@ -37,7 +37,7 @@ export async function verifyRefreshToken(token: string) {
     try {
         const { payload } = await jwtVerify(token, REFRESH_SECRET);
         return payload as unknown as TokenPayload & { jti: string };
-    } catch (error) {
+    } catch {
         return null;
     }
 }

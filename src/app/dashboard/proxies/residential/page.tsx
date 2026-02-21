@@ -165,7 +165,7 @@ function PurchasePanel({ balance, onSuccess }: { balance: number; onSuccess: () 
     );
 }
 
-function TopUpPanel({ proxy, balance, onSuccess }: { proxy: { allocatedGb: number; gbUsed: number }; balance: number; onSuccess: () => void }) {
+function TopUpPanel({ balance, onSuccess }: { proxy: { allocatedGb: number; gbUsed: number }; balance: number; onSuccess: () => void }) {
     const [gb, setGb] = useState(5);
     const toast = useToast();
 

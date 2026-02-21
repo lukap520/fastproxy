@@ -74,9 +74,10 @@ export default function InvoicesPage() {
         if (!userLoading && (userError || !user)) router.replace("/login");
     }, [userLoading, userError, user, router]);
 
-    const confirmed = invoices?.filter((i) => i.status === "confirmed") ?? [];
-    const pending = invoices?.filter((i) => i.status === "pending") ?? [];
-    const totalDeposited = confirmed.reduce((s, i) => s + i.amountUsd, 0);
+    type Invoice = NonNullable<typeof invoices>[number];
+    const confirmed = invoices?.filter((i: Invoice) => i.status === "confirmed") ?? [];
+    const pending = invoices?.filter((i: Invoice) => i.status === "pending") ?? [];
+    const totalDeposited = confirmed.reduce((s: number, i: Invoice) => s + i.amountUsd, 0);
 
     if (userLoading || isLoading) return (
         <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
