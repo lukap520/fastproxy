@@ -1,0 +1,158 @@
+Authentication
+All requests require your Reseller API key and whitelisted IP.
+Required Header
+
+X-Reseller-API-Key: your_reseller_api_key
+Base URL: https://maskify.su/api/reseller/v2
+
+IP Whitelist: Requests must come from your whitelisted IP address
+
+Required Rank: Reseller (rank 3+)
+
+Example
+
+curl -X GET "https://maskify.su/api/reseller/v2/account" \
+  -H "X-Reseller-API-Key: rk_live_..."
+Account
+GET
+/api/reseller/v2/account
+Get reseller account information including balance and GB available.
+
+Response
+
+{
+  "success": true,
+  "balance": 500.00,
+  "gb_available": 150.00,
+  "total_allocated": 50.00,
+  "cost_per_gb": 0.21
+}
+GET
+/api/reseller/v2/config
+Get reseller configuration (whitelisted IP, auto-convert settings).
+
+Response
+
+{
+  "success": true,
+  "whitelisted_ip": "1.2.3.4",
+  "auto_convert": false,
+  "cost_per_gb": 0.21
+}
+Subuser Management
+GET
+/api/reseller/v2/subusers
+List all subusers with their data allocation and usage.
+
+Response
+
+{
+  "success": true,
+  "subusers": [
+    {
+      "username": "sub_user123",
+      "email": "user@example.com",
+      "allocated_gb": 10.00,
+      "gb_used": 3.50,
+      "created_at": 1707400000
+    }
+  ],
+  "total_gb": 10.00
+}
+POST
+/api/reseller/v2/subusers
+Create a new subuser with optional initial data allocation.
+
+Request Body
+
+{
+  "email": "newuser@example.com",
+  "gb_amount": 5.00
+}
+Response
+
+{
+  "success": true,
+  "username": "sub_abc123",
+  "password": "generated_pass",
+  "email": "newuser@example.com",
+  "allocated_gb": 5.00
+}
+GET
+/api/reseller/v2/subusers/{username}
+Get detailed information about a specific subuser.
+
+Response
+
+{
+  "success": true,
+  "username": "sub_user123",
+  "email": "user@example.com",
+  "allocated_gb": 10.00,
+  "gb_used": 3.50,
+  "created_at": 1707400000
+}
+PATCH
+/api/reseller/v2/subusers/{username}
+Update a subuser's data allocation (add or remove GB).
+
+Request Body
+
+{
+  "add_gb": 5.00
+}
+Response
+
+{
+  "success": true,
+  "username": "sub_user123",
+  "allocated_gb": 15.00,
+  "gb_used": 3.50
+}
+DELETE
+/api/reseller/v2/subusers/{username}
+Delete a subuser and reclaim their allocated data.
+
+Response
+
+{
+  "success": true,
+  "message": "Subuser deleted successfully."
+}
+Unlimited Plans (for Subusers)
+POST
+/api/reseller/v2/unlimited/purchase
+Purchase an unlimited bandwidth plan for a subuser.
+
+Request Body
+
+{
+  "username": "sub_user123",
+  "speed": 400,
+  "duration": "daily"
+}
+Response
+
+{
+  "success": true,
+  "username": "sub_user123",
+  "speed_mbps": 400,
+  "plan": "Daily",
+  "expiry": 1707500000
+}
+GET
+/api/reseller/v2/subusers/{username}/unlimited
+Get the unlimited plan status for a specific subuser.
+
+Response
+
+{
+  "success": true,
+  "has_unlimited": true,
+  "unlimited": {
+    "speed_mbps": 400,
+    "plan": "Daily",
+    "expiry": 1707500000,
+    "auto_renew": false
+  }
+}

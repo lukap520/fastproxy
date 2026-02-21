@@ -8,27 +8,22 @@ const faqs = [
   {
     q: "How does FastProxy handle IP rotation?",
     a: "Our network automatically rotates IPs per request or maintains sticky sessions up to 30 minutes. You control the behavior via a single header parameter — no SDK required.",
-    icon: "mdi:rotate-3d-variant",
   },
   {
     q: "What's the average response time?",
     a: "Median latency is under 50ms for datacenter proxies and under 200ms for residential. We route through the closest node to your target automatically.",
-    icon: "mdi:speedometer",
   },
   {
     q: "Is there a free tier?",
     a: "Yes. You get 1GB of bandwidth free every month with access to all proxy types. No credit card needed to start — upgrade only when your usage demands it.",
-    icon: "mdi:gift-outline",
   },
   {
     q: "How do you ensure IP quality?",
     a: "Every IP goes through a multi-layer verification pipeline. We check for blacklists, captcha rates, and response times continuously. Bad IPs are removed within seconds.",
-    icon: "mdi:shield-search",
   },
   {
     q: "Can I target specific countries or cities?",
     a: "Absolutely. We support geo-targeting at the country, state, and city level across 195+ locations. Pass the target location as a parameter in your request.",
-    icon: "mdi:map-marker-radius-outline",
   },
 ];
 
@@ -40,6 +35,7 @@ const highlights = [
 
 function FAQItem({ faq, index }: { faq: (typeof faqs)[0]; index: number }) {
   const [open, setOpen] = useState(false);
+  const num = String(index + 1).padStart(2, "0");
 
   return (
     <motion.div
@@ -51,21 +47,34 @@ function FAQItem({ faq, index }: { faq: (typeof faqs)[0]; index: number }) {
     >
       <button
         onClick={() => setOpen(!open)}
-        className="flex w-full items-center gap-3 py-4 text-left"
+        className="flex w-full items-start gap-4 py-5 text-left"
       >
-        <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors duration-300 ${open ? "bg-accent/10" : "bg-white/[0.03]"}`}>
-          <Icon icon={faq.icon} className={`text-xs transition-colors duration-300 ${open ? "text-accent/80" : "text-muted/30"}`} />
-        </div>
-        <span className="flex-1 text-[14px] font-medium text-foreground/80 transition-colors duration-200 group-hover:text-foreground">
-          {faq.q}
+        <span
+          className={`font-heading text-[13px] font-bold tracking-tight transition-colors duration-300 mt-0.5 ${open ? "text-accent" : "text-white/[0.08]"
+            }`}
+        >
+          {num}
         </span>
-        <Icon
-          icon="mdi:chevron-down"
-          className={`shrink-0 text-sm text-muted/30 transition-all duration-300 ${
-            open ? "rotate-180 text-accent/60" : ""
-          }`}
-        />
+        <div className="flex-1 relative">
+          <span
+            className={`text-[14px] font-medium transition-colors duration-200 ${open ? "text-foreground" : "text-foreground/70 group-hover:text-foreground/90"
+              }`}
+          >
+            {faq.q}
+          </span>
+        </div>
+        <div
+          className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg transition-all duration-300 ${open ? "bg-accent/10 rotate-45 ring-1 ring-accent/15" : "bg-white/[0.04]"
+            }`}
+        >
+          <Icon
+            icon="mdi:plus"
+            className={`text-xs transition-colors duration-300 ${open ? "text-accent" : "text-muted/30"
+              }`}
+          />
+        </div>
       </button>
+
       <AnimatePresence initial={false}>
         {open && (
           <motion.div
@@ -75,9 +84,15 @@ function FAQItem({ faq, index }: { faq: (typeof faqs)[0]; index: number }) {
             transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
             className="overflow-hidden"
           >
-            <p className="pb-5 pl-10 pr-8 text-[13px] leading-[1.7] text-muted/60">
-              {faq.a}
-            </p>
+            <div className="flex gap-4 pb-5">
+              <span className="w-[22px] shrink-0" />
+              <div className="relative pl-4">
+                <div className="absolute left-0 top-0 bottom-0 w-[2px] rounded-full bg-gradient-to-b from-accent/50 via-accent/20 to-accent/0" />
+                <p className="text-[13px] leading-[1.8] text-muted/60">
+                  {faq.a}
+                </p>
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -87,7 +102,7 @@ function FAQItem({ faq, index }: { faq: (typeof faqs)[0]; index: number }) {
 
 export default function FAQ() {
   return (
-    <section id="faq" className="relative z-10 mx-auto max-w-5xl px-5 py-16 sm:px-6 sm:py-20">
+    <section id="faq" className="relative z-10 mx-auto max-w-6xl px-5 py-16 sm:px-6 sm:py-20">
       <div className="grid gap-8 lg:grid-cols-5 lg:gap-16">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -96,44 +111,41 @@ export default function FAQ() {
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="lg:col-span-2"
         >
-          <div className="mb-4 flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent/[0.06]">
-              <Icon icon="mdi:help-circle-outline" className="text-sm text-accent/60" />
-            </div>
-            <span className="text-[11px] font-medium tracking-wide text-muted/60 uppercase">FAQ</span>
-          </div>
           <h2 className="font-heading text-2xl tracking-tighter text-foreground sm:text-3xl lg:text-4xl">
-            <span className="font-extralight text-foreground/60">Common</span>{" "}
+            <span className="font-extralight text-foreground/55">Common</span>{" "}
             <span className="font-bold">questions</span>
           </h2>
-          <p className="mt-3 text-sm leading-relaxed text-muted/60">
+          <p className="mt-3 text-sm leading-relaxed text-muted/50">
             Everything you need to know before connecting your first proxy.
           </p>
 
           <div className="mt-8 flex flex-col gap-3">
             {highlights.map((h) => (
               <div key={h.label} className="flex items-center gap-2.5">
-                <div className="flex h-6 w-6 items-center justify-center rounded-md border border-white/[0.04] bg-white/[0.015]">
-                  <Icon icon={h.icon} className="text-xs text-accent/40" />
+                <div className="flex h-6 w-6 items-center justify-center rounded-md border border-white/[0.05] bg-white/[0.02]">
+                  <Icon icon={h.icon} className="text-xs text-accent/50" />
                 </div>
-                <span className="text-[12px] text-muted/50">{h.label}</span>
+                <span className="text-[12px] text-muted/55">{h.label}</span>
               </div>
             ))}
           </div>
 
           <a
             href="#"
-            className="group mt-8 inline-flex items-center gap-1.5 text-[12px] font-medium text-accent/60 transition-colors duration-200 hover:text-accent"
+            className="group mt-8 inline-flex items-center gap-1.5 text-[12px] font-medium text-accent/55 transition-colors duration-200 hover:text-accent"
           >
             <Icon icon="mdi:lifebuoy" className="text-sm" />
             Contact Support
-            <Icon icon="mdi:arrow-right" className="text-xs transition-transform duration-200 group-hover:translate-x-0.5" />
+            <Icon
+              icon="mdi:arrow-right"
+              className="text-xs transition-transform duration-200 group-hover:translate-x-0.5"
+            />
           </a>
         </motion.div>
 
         <div className="lg:col-span-3">
-          <div className="rounded-xl border border-white/[0.04] bg-white/[0.01] p-1">
-            <div className="divide-y divide-white/[0.03] px-4">
+          <div className="rounded-2xl border border-white/[0.05] bg-white/[0.012] p-1">
+            <div className="divide-y divide-gradient-to-r divide-white/[0.04] px-4">
               {faqs.map((faq, i) => (
                 <FAQItem key={i} faq={faq} index={i} />
               ))}
