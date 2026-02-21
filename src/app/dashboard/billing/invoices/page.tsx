@@ -141,7 +141,7 @@ export default function InvoicesPage() {
 
             {invoices && invoices.length > 0 && (
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    {invoices.map((inv: NonNullable<typeof invoices>[number], i) => {
+                    {invoices.map((inv: NonNullable<typeof invoices>[number], i: number) => {
                         const meta = CRYPTO_META[inv.crypto];
                         const sc = STATUS_CONFIG[inv.status as keyof typeof STATUS_CONFIG] ?? STATUS_CONFIG.pending;
 
