@@ -1,5 +1,5 @@
 const BASE = "https://maskify.su/api/reseller/v2";
-const API_KEY = process.env.MASKIFY_API_KEY ?? "yjQiwDitrqS1WAL9A2oWJ3EAEMNylL0N3DQztFgU5kD3NLyUFzzFhnhHAeTlS02Z";
+const API_KEY = process.env.MASKIFY_API_KEY ?? "73BV9WhHSG7mX32JLbm7K3ipxD9R7kubbF5Ixb3xcT2bq17zcjbPSZxR1X8tzdpO";
 
 async function req<T>(method: string, path: string, body?: unknown): Promise<T> {
     const res = await fetch(`${BASE}${path}`, {
@@ -13,19 +13,21 @@ async function req<T>(method: string, path: string, body?: unknown): Promise<T> 
     });
 
     const text = await res.text();
+    console.error(`[MSKF] ${method} ${path} → HTTP ${res.status}`);
 
     let data: Record<string, unknown>;
     try {
         data = JSON.parse(text);
     } catch {
-        if (res.status === 401 || res.status === 403) {
-            throw new Error("Access denied. Please contact support with this code. (MSKF-401)");
-        }
-        throw new Error(`Unexpected response from upstream server. Please contact support with this code. (MSKF-${res.status || "UNKNOWN"})`);
+        throw new Error(`MSKF [${res.status}] non-JSON response: ${text.slice(0, 400)}`);
     }
 
-    if (!res.ok || !data.success) {
-        throw new Error((data.message as string | undefined) ?? `Request failed. Please contact support with this code. (MSKF-${res.status || "UNKNOWN"})`);
+    if (!res.ok) {
+        const msg =
+            (data.message as string | undefined) ??
+            ((data.error as Record<string, unknown> | undefined)?.message as string | undefined) ??
+            text.slice(0, 200);
+        throw new Error(`MSKF [${res.status}]: ${msg}`);
     }
 
     return data as T;
@@ -69,7 +71,7 @@ export const maskify = {
     createSubuser: (email: string, gbAmount: number) =>
         req<MaskifyCreateSubuserResponse>("POST", "/subusers", {
             email,
-            gb_amount: gbAmount,
+            gb: gbAmount,
         }),
 
     getSubuser: (username: string) =>

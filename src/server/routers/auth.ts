@@ -50,7 +50,7 @@ export const authRouter = createTRPCRouter({
                 },
             });
 
-            const accessToken = await signAccessToken({ userId: user.id });
+            const accessToken = await signAccessToken({ userId: user.id, role: user.role });
             const session = await ctx.db.session.create({
                 data: {
                     userId: user.id,
@@ -61,7 +61,7 @@ export const authRouter = createTRPCRouter({
                 },
             });
 
-            const refreshToken = await signRefreshToken({ userId: user.id }, session.id);
+            const refreshToken = await signRefreshToken({ userId: user.id, role: user.role }, session.id);
 
             const tokenHash = await bcrypt.hash(refreshToken, 10);
             await ctx.db.session.update({
@@ -102,7 +102,7 @@ export const authRouter = createTRPCRouter({
                 });
             }
 
-            const accessToken = await signAccessToken({ userId: user.id });
+            const accessToken = await signAccessToken({ userId: user.id, role: user.role });
 
             const session = await ctx.db.session.create({
                 data: {
@@ -114,7 +114,7 @@ export const authRouter = createTRPCRouter({
                 },
             });
 
-            const refreshToken = await signRefreshToken({ userId: user.id }, session.id);
+            const refreshToken = await signRefreshToken({ userId: user.id, role: user.role }, session.id);
             const tokenHash = await bcrypt.hash(refreshToken, 10);
 
             await ctx.db.session.update({

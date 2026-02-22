@@ -5,6 +5,7 @@ const REFRESH_SECRET = new TextEncoder().encode(process.env.JWT_REFRESH_SECRET);
 
 export interface TokenPayload {
     userId: string;
+    role?: "USER" | "ADMIN";
 }
 
 export async function signAccessToken(payload: TokenPayload): Promise<string> {

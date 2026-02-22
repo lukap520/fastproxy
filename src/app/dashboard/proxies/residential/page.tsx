@@ -7,8 +7,9 @@ import { useEffect } from "react";
 import { Icon } from "@iconify/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/components/ui/Toast";
+import { useWindowSize } from "@/hooks/useWindowSize";
 
-const PRICE_PER_GB = 1.60;
+const PRICE_PER_GB = 1.00;
 const PRESETS = [1, 3, 5, 10, 25, 50];
 
 function CopyButton({ text }: { text: string }) {
@@ -223,10 +224,10 @@ function TopUpPanel({ balance, onSuccess }: { proxy: { allocatedGb: number; gbUs
 
 function CredentialRow({ label, value, mono = false }: { label: string; value: string; mono?: boolean }) {
     return (
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "11px 14px", borderRadius: 10, background: "rgba(255,255,255,0.016)", border: "1px solid rgba(255,255,255,0.05)" }}>
-            <div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "11px 14px", borderRadius: 10, background: "rgba(255,255,255,0.016)", border: "1px solid rgba(255,255,255,0.05)" }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: "rgba(255,255,255,0.2)", fontFamily: "var(--font-sans,system-ui)", marginBottom: 4 }}>{label}</p>
-                <p style={{ fontSize: 12.5, color: "rgba(235,235,235,0.78)", fontFamily: mono ? "monospace" : "var(--font-sans,system-ui)", letterSpacing: mono ? "0.03em" : "-0.01em", fontWeight: 500 }}>{value}</p>
+                <p style={{ fontSize: 12.5, color: "rgba(235,235,235,0.78)", fontFamily: mono ? "monospace" : "var(--font-sans,system-ui)", letterSpacing: mono ? "0.03em" : "-0.01em", fontWeight: 500, wordBreak: "break-all" }}>{value}</p>
             </div>
             <CopyButton text={value} />
         </div>
@@ -235,6 +236,8 @@ function CredentialRow({ label, value, mono = false }: { label: string; value: s
 
 export default function ResidentialGBPage() {
     const router = useRouter();
+    const { isMobile, isTablet } = useWindowSize();
+    const isSmall = isMobile || isTablet;
     const { data: user, isLoading: userLoading, error } = trpc.auth.me.useQuery();
     const { data: proxy, isLoading: proxyLoading, refetch } = trpc.proxy.getMyProxy.useQuery();
 
@@ -248,10 +251,10 @@ export default function ResidentialGBPage() {
         </div>
     );
 
-    const proxyHost = "gate.maskify.su:8080";
+    const proxyHost = "resi.maskify.su:80";
 
     return (
-        <div style={{ flex: 1, padding: "52px 56px", maxWidth: 1060, width: "100%", margin: "0 auto" }}>
+        <div style={{ flex: 1, padding: isSmall ? "80px 20px 40px" : "52px 56px", maxWidth: 1060, width: "100%", margin: "0 auto" }}>
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.32 }} style={{ marginBottom: 44 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
                     <div style={{ width: 24, height: 1, background: "rgba(255,107,0,0.5)" }} />
@@ -266,7 +269,7 @@ export default function ResidentialGBPage() {
             </motion.div>
 
             {proxy ? (
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 18, alignItems: "start" }}>
+                <div style={{ display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 320px", gap: 18, alignItems: "start" }}>
                     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.06 }}
                             style={{ borderRadius: 16, background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.055)", overflow: "hidden" }}>
@@ -316,7 +319,7 @@ export default function ResidentialGBPage() {
                     </motion.div>
                 </div>
             ) : (
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 440px", gap: 20, alignItems: "start" }}>
+                <div style={{ display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 440px", gap: 20, alignItems: "start" }}>
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.06 }}>
                         <div style={{ marginBottom: 24 }}>
                             <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.11em", textTransform: "uppercase" as const, color: "rgba(255,255,255,0.16)", fontFamily: "var(--font-sans,system-ui)", marginBottom: 14 }}>

@@ -76,7 +76,33 @@ export const proxyRouter = createTRPCRouter({
                 return { username: existing.username, password: existing.password, isNew: false };
             }
 
-            const created = await maskify.createSubuser(ctx.user.email, input.gb);
+            const syntheticEmail = `proxy-${ctx.user.id}@internal.fastproxy`;
+
+            let created: { username: string; password: string; allocated_gb: number };
+
+            try {
+                created = await maskify.createSubuser(syntheticEmail, input.gb);
+            } catch (err: unknown) {
+                const msg = err instanceof Error ? err.message : "";
+                if (msg.toLowerCase().includes("email already exists")) {
+                    const existing = await maskify.getSubuser(syntheticEmail);
+                    await ctx.db.user.update({
+                        where: { id: ctx.user.id },
+                        data: { balance: { decrement: costUsd } },
+                    });
+                    const subuser = await ctx.db.proxySubuser.create({
+                        data: {
+                            userId: ctx.user.id,
+                            username: existing.username,
+                            password: "",
+                            allocatedGb: existing.allocated_gb,
+                            gbUsed: existing.gb_used,
+                        },
+                    });
+                    return { username: subuser.username, password: subuser.password, isNew: false };
+                }
+                throw err;
+            }
 
             await ctx.db.user.update({
                 where: { id: ctx.user.id },

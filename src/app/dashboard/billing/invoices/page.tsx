@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useWindowSize } from "@/hooks/useWindowSize";
 
 const CRYPTO_META: Record<string, { symbol: string; icon: string; color: string; network: string }> = {
     btc: { symbol: "BTC", icon: "cryptocurrency-color:btc", color: "#F7931A", network: "Bitcoin" },
@@ -19,41 +20,49 @@ const CRYPTO_META: Record<string, { symbol: string; icon: string; color: string;
 };
 
 const STATUS_CONFIG = {
+    waiting: {
+        label: "Awaiting Payment", description: "Send exact amount",
+        dotColor: "rgb(251,191,36)", glow: "rgba(251,191,36,0.4)", bg: "rgba(251,191,36,0.06)", border: "rgba(251,191,36,0.14)", text: "rgb(251,191,36)",
+    },
     pending: {
-        label: "Pending",
-        description: "Awaiting on-chain confirmation",
-        dotColor: "rgb(251,191,36)",
-        glow: "rgba(251,191,36,0.4)",
-        bg: "rgba(251,191,36,0.06)",
-        border: "rgba(251,191,36,0.14)",
-        text: "rgb(251,191,36)",
+        label: "Awaiting Payment", description: "Send exact amount",
+        dotColor: "rgb(251,191,36)", glow: "rgba(251,191,36,0.4)", bg: "rgba(251,191,36,0.06)", border: "rgba(251,191,36,0.14)", text: "rgb(251,191,36)",
+    },
+    confirming: {
+        label: "Confirming", description: "Confirming on network",
+        dotColor: "rgb(96,165,250)", glow: "rgba(96,165,250,0.4)", bg: "rgba(96,165,250,0.06)", border: "rgba(96,165,250,0.14)", text: "rgb(96,165,250)",
+    },
+    sending: {
+        label: "Processing", description: "Verifying settlement",
+        dotColor: "rgb(96,165,250)", glow: "rgba(96,165,250,0.4)", bg: "rgba(96,165,250,0.06)", border: "rgba(96,165,250,0.14)", text: "rgb(96,165,250)",
+    },
+    partially_paid: {
+        label: "Action Required", description: "Insufficient amount sent",
+        dotColor: "rgb(249,115,22)", glow: "rgba(249,115,22,0.4)", bg: "rgba(249,115,22,0.06)", border: "rgba(249,115,22,0.14)", text: "rgb(249,115,22)",
     },
     confirmed: {
-        label: "Confirmed",
-        description: "Funds credited to balance",
-        dotColor: "rgb(52,211,153)",
-        glow: "rgba(52,211,153,0.5)",
-        bg: "rgba(52,211,153,0.05)",
-        border: "rgba(52,211,153,0.14)",
-        text: "rgb(52,211,153)",
+        label: "Confirmed", description: "Funds credited to balance",
+        dotColor: "rgb(52,211,153)", glow: "rgba(52,211,153,0.5)", bg: "rgba(52,211,153,0.05)", border: "rgba(52,211,153,0.14)", text: "rgb(52,211,153)",
+    },
+    finished: {
+        label: "Paid", description: "Funds credited to balance",
+        dotColor: "rgb(52,211,153)", glow: "rgba(52,211,153,0.5)", bg: "rgba(52,211,153,0.05)", border: "rgba(52,211,153,0.14)", text: "rgb(52,211,153)",
     },
     expired: {
-        label: "Expired",
-        description: "Invoice timed out",
-        dotColor: "rgba(239,68,68,0.7)",
-        glow: "none",
-        bg: "rgba(239,68,68,0.04)",
-        border: "rgba(239,68,68,0.1)",
-        text: "rgba(239,68,68,0.7)",
+        label: "Expired", description: "Invoice timed out",
+        dotColor: "rgba(239,68,68,0.7)", glow: "none", bg: "rgba(239,68,68,0.04)", border: "rgba(239,68,68,0.1)", text: "rgba(239,68,68,0.7)",
+    },
+    failed: {
+        label: "Failed", description: "Payment failed",
+        dotColor: "rgba(239,68,68,0.7)", glow: "none", bg: "rgba(239,68,68,0.04)", border: "rgba(239,68,68,0.1)", text: "rgba(239,68,68,0.7)",
+    },
+    refunded: {
+        label: "Refunded", description: "Refunded successfully",
+        dotColor: "rgba(255,255,255,0.4)", glow: "none", bg: "rgba(255,255,255,0.02)", border: "rgba(255,255,255,0.06)", text: "rgba(255,255,255,0.4)",
     },
     cancelled: {
-        label: "Cancelled",
-        description: "Cancelled by user",
-        dotColor: "rgba(255,255,255,0.2)",
-        glow: "none",
-        bg: "rgba(255,255,255,0.015)",
-        border: "rgba(255,255,255,0.05)",
-        text: "rgba(255,255,255,0.3)",
+        label: "Cancelled", description: "Cancelled by user",
+        dotColor: "rgba(255,255,255,0.2)", glow: "none", bg: "rgba(255,255,255,0.015)", border: "rgba(255,255,255,0.05)", text: "rgba(255,255,255,0.3)",
     },
 };
 
@@ -67,6 +76,8 @@ function timeAgo(d: Date) {
 
 export default function InvoicesPage() {
     const router = useRouter();
+    const { isMobile, isTablet } = useWindowSize();
+    const isSmall = isMobile || isTablet;
     const { data: user, isLoading: userLoading, error: userError } = trpc.auth.me.useQuery();
     const { data: invoices, isLoading } = trpc.billing.getUserInvoices.useQuery();
 
@@ -75,8 +86,8 @@ export default function InvoicesPage() {
     }, [userLoading, userError, user, router]);
 
     type Invoice = NonNullable<typeof invoices>[number];
-    const confirmed = invoices?.filter((i: Invoice) => i.status === "confirmed") ?? [];
-    const pending = invoices?.filter((i: Invoice) => i.status === "pending") ?? [];
+    const confirmed = invoices?.filter((i: Invoice) => i.status === "confirmed" || i.status === "finished") ?? [];
+    const pending = invoices?.filter((i: Invoice) => ["pending", "waiting", "confirming", "sending", "partially_paid"].includes(i.status)) ?? [];
     const totalDeposited = confirmed.reduce((s: number, i: Invoice) => s + i.amountUsd, 0);
 
     if (userLoading || isLoading) return (
@@ -86,7 +97,7 @@ export default function InvoicesPage() {
     );
 
     return (
-        <div style={{ flex: 1, padding: "56px 60px", maxWidth: 1060, width: "100%", margin: "0 auto" }}>
+        <div style={{ flex: 1, padding: isSmall ? "80px 20px 40px" : "56px 60px", maxWidth: 1060, width: "100%", margin: "0 auto" }}>
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.32 }} style={{ marginBottom: 40 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
                     <div style={{ height: 1, width: 28, background: "rgba(255,107,0,0.5)" }} />
@@ -102,7 +113,7 @@ export default function InvoicesPage() {
 
             {(invoices?.length ?? 0) > 0 && (
                 <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.04, duration: 0.32 }}
-                    style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 32 }}>
+                    style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : isTablet ? "repeat(2, 1fr)" : "repeat(3, 1fr)", gap: 12, marginBottom: 32 }}>
                     {[
                         { label: "Total deposited", value: `$${totalDeposited.toFixed(2)}`, icon: "ph:currency-dollar", color: "rgb(52,211,153)", dimColor: "rgba(52,211,153,0.07)", borderColor: "rgba(52,211,153,0.12)" },
                         { label: "Pending invoices", value: String(pending.length), icon: "ph:clock", color: "rgb(251,191,36)", dimColor: "rgba(251,191,36,0.06)", borderColor: "rgba(251,191,36,0.1)" },
@@ -149,8 +160,8 @@ export default function InvoicesPage() {
                             <motion.div key={inv.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.28, delay: 0.05 + i * 0.05 }}>
                                 <Link href={`/dashboard/invoice/${inv.id}`} style={{ display: "block", textDecoration: "none" }}>
                                     <div style={{
-                                        display: "flex", alignItems: "center", gap: 18,
-                                        padding: "16px 20px",
+                                        display: "flex", flexDirection: isSmall ? "column" : "row", alignItems: isSmall ? "flex-start" : "center", gap: isSmall ? 10 : 18,
+                                        padding: isSmall ? "14px 16px" : "16px 20px",
                                         borderRadius: 14,
                                         background: "rgba(255,255,255,0.014)",
                                         border: `1px solid rgba(255,255,255,0.05)`,
@@ -161,49 +172,72 @@ export default function InvoicesPage() {
                                     }}
                                         onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.transform = "translateX(2px)"; }}
                                         onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.014)"; e.currentTarget.style.transform = "translateX(0)"; }}>
-
-                                        <div style={{ width: 44, height: 44, borderRadius: 12, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, position: "relative" }}>
-                                            <div style={{ position: "absolute", inset: 0, borderRadius: 12, background: meta ? `radial-gradient(circle, ${meta.color}14 0%, transparent 70%)` : "none" }} />
-                                            <Icon icon={meta?.icon ?? "ph:coin"} style={{ fontSize: 24, position: "relative" }} />
-                                        </div>
-
-                                        <div style={{ flex: 1, minWidth: 0 }}>
-                                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
-                                                <span style={{ fontSize: 13.5, fontWeight: 600, color: "rgba(235,235,235,0.85)", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "-0.01em" }}>
-                                                    {meta?.symbol ?? inv.crypto.toUpperCase()} deposit
-                                                </span>
-                                                <span style={{ fontSize: 10.5, color: "rgba(255,255,255,0.18)", fontFamily: "monospace" }}>
-                                                    #{inv.id.slice(-8).toUpperCase()}
-                                                </span>
+                                        <div style={{ display: "flex", alignItems: "center", gap: 14, width: "100%" }}>
+                                            <div style={{ width: 44, height: 44, borderRadius: 12, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, position: "relative" }}>
+                                                <div style={{ position: "absolute", inset: 0, borderRadius: 12, background: meta ? `radial-gradient(circle, ${meta.color}14 0%, transparent 70%)` : "none" }} />
+                                                <Icon icon={meta?.icon ?? "ph:coin"} style={{ fontSize: 24, position: "relative" }} />
                                             </div>
-                                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.22)", fontFamily: "var(--font-sans,system-ui)" }}>
-                                                    {meta?.network ?? inv.crypto} network
-                                                </span>
-                                                <span style={{ width: 2, height: 2, borderRadius: "50%", background: "rgba(255,255,255,0.12)", flexShrink: 0 }} />
-                                                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.22)", fontFamily: "var(--font-sans,system-ui)" }}>
-                                                    {timeAgo(new Date(inv.createdAt))}
-                                                </span>
+
+                                            <div style={{ flex: 1, minWidth: 0 }}>
+                                                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
+                                                    <span style={{ fontSize: 13.5, fontWeight: 600, color: "rgba(235,235,235,0.85)", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "-0.01em" }}>
+                                                        {meta?.symbol ?? inv.crypto.toUpperCase()} deposit
+                                                    </span>
+                                                    <span style={{ fontSize: 10.5, color: "rgba(255,255,255,0.18)", fontFamily: "monospace" }}>
+                                                        #{inv.id.slice(-8).toUpperCase()}
+                                                    </span>
+                                                </div>
+                                                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                                    <span style={{ fontSize: 11, color: "rgba(255,255,255,0.22)", fontFamily: "var(--font-sans,system-ui)" }}>
+                                                        {meta?.network ?? inv.crypto} network
+                                                    </span>
+                                                    <span style={{ width: 2, height: 2, borderRadius: "50%", background: "rgba(255,255,255,0.12)", flexShrink: 0 }} />
+                                                    <span style={{ fontSize: 11, color: "rgba(255,255,255,0.22)", fontFamily: "var(--font-sans,system-ui)" }}>
+                                                        {timeAgo(new Date(inv.createdAt))}
+                                                    </span>
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        <div style={{ textAlign: "right" as const, flexShrink: 0 }}>
-                                            <p style={{ fontSize: 16, fontWeight: 700, color: "rgba(235,235,235,0.9)", fontFamily: "var(--font-heading,system-ui)", letterSpacing: "-0.02em" }}>
-                                                ${inv.amountUsd.toFixed(2)}
-                                            </p>
-                                            <p style={{ fontSize: 10.5, color: "rgba(255,255,255,0.2)", fontFamily: "monospace", marginTop: 2 }}>
-                                                {inv.cryptoAmount} {meta?.symbol}
-                                            </p>
-                                        </div>
+                                            {!isSmall && (
+                                                <>
+                                                    <div style={{ textAlign: "right" as const, flexShrink: 0 }}>
+                                                        <p style={{ fontSize: 16, fontWeight: 700, color: "rgba(235,235,235,0.9)", fontFamily: "var(--font-heading,system-ui)", letterSpacing: "-0.02em" }}>
+                                                            ${inv.amountUsd.toFixed(2)}
+                                                        </p>
+                                                        <p style={{ fontSize: 10.5, color: "rgba(255,255,255,0.2)", fontFamily: "monospace", marginTop: 2 }}>
+                                                            {inv.cryptoAmount} {meta?.symbol}
+                                                        </p>
+                                                    </div>
 
-                                        <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 6, padding: "5px 11px", borderRadius: 8, background: sc.bg, border: `1px solid ${sc.border}` }}>
-                                            <div style={{ width: 6, height: 6, borderRadius: "50%", background: sc.dotColor, boxShadow: sc.glow !== "none" ? `0 0 6px ${sc.glow}` : "none", flexShrink: 0 }} />
-                                            <span style={{ fontSize: 11, fontWeight: 600, color: sc.text, fontFamily: "var(--font-sans,system-ui)", whiteSpace: "nowrap" as const }}>
-                                                {sc.label}
-                                            </span>
-                                        </div>
+                                                    <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 6, padding: "5px 11px", borderRadius: 8, background: sc.bg, border: `1px solid ${sc.border}` }}>
+                                                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: sc.dotColor, boxShadow: sc.glow !== "none" ? `0 0 6px ${sc.glow}` : "none", flexShrink: 0 }} />
+                                                        <span style={{ fontSize: 11, fontWeight: 600, color: sc.text, fontFamily: "var(--font-sans,system-ui)", whiteSpace: "nowrap" as const }}>
+                                                            {sc.label}
+                                                        </span>
+                                                    </div>
 
-                                        <Icon icon="ph:arrow-right" style={{ fontSize: 15, color: "rgba(255,255,255,0.12)", flexShrink: 0 }} />
+                                                    <Icon icon="ph:arrow-right" style={{ fontSize: 15, color: "rgba(255,255,255,0.12)", flexShrink: 0 }} />
+                                                </>
+                                            )}
+                                        </div>
+                                        {isSmall && (
+                                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", paddingLeft: 58 }}>
+                                                <div>
+                                                    <p style={{ fontSize: 15, fontWeight: 700, color: "rgba(235,235,235,0.9)", fontFamily: "var(--font-heading,system-ui)", letterSpacing: "-0.02em" }}>
+                                                        ${inv.amountUsd.toFixed(2)}
+                                                    </p>
+                                                    <p style={{ fontSize: 10.5, color: "rgba(255,255,255,0.2)", fontFamily: "monospace", marginTop: 2 }}>
+                                                        {inv.cryptoAmount} {meta?.symbol}
+                                                    </p>
+                                                </div>
+                                                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+                                                    <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 6, padding: "5px 11px", borderRadius: 8, background: sc.bg, border: `1px solid ${sc.border}` }}>
+                                                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: sc.dotColor, boxShadow: sc.glow !== "none" ? `0 0 6px ${sc.glow}` : "none", flexShrink: 0 }} />
+                                                        <span style={{ fontSize: 11, fontWeight: 600, color: sc.text, fontFamily: "var(--font-sans,system-ui)" }}>{sc.label}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </Link>
                             </motion.div>

@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Icon } from "@iconify/react";
 import { trpc } from "@/lib/trpc";
+import { useWindowSize } from "@/hooks/useWindowSize";
 
 const NAV_GROUPS = [
     {
@@ -40,7 +42,9 @@ const NAV_GROUPS = [
     {
         label: "Admin",
         items: [
-            { href: "/admin", icon: "ph:shield-star", label: "Admin Panel", comingSoon: false },
+            { href: "/dashboard/admin", icon: "ph:shield-star", label: "Overview", comingSoon: false },
+            { href: "/dashboard/admin/users", icon: "ph:users", label: "Users", comingSoon: false },
+            { href: "/dashboard/admin/proxies", icon: "ph:globe", label: "Proxies", comingSoon: false },
         ],
     },
 ];
@@ -91,10 +95,11 @@ function ComingSoonItem({ item }: { item: { icon: string; label: string } }) {
     );
 }
 
-function NavItem({ item, isActive }: { item: { href: string; icon: string; label: string }; isActive: boolean }) {
+function NavItem({ item, isActive, onClick }: { item: { href: string; icon: string; label: string }; isActive: boolean; onClick?: () => void }) {
     return (
         <Link
             href={item.href}
+            onClick={onClick}
             style={{
                 display: "flex", alignItems: "center", gap: 10,
                 padding: "7px 10px",
@@ -123,13 +128,13 @@ function NavItem({ item, isActive }: { item: { href: string; icon: string; label
             )}
             <Icon icon={item.icon} style={{
                 fontSize: 17,
-                color: isActive ? "rgb(255,107,0)" : "rgba(255,255,255,0.22)",
+                color: isActive ? "rgb(255,107,0)" : "rgba(255,255,255,0.6)",
                 flexShrink: 0, transition: "color 0.15s ease",
             }} />
             <span style={{
                 fontSize: 13, fontFamily: "var(--font-sans,system-ui)",
                 fontWeight: isActive ? 500 : 400,
-                color: isActive ? "rgba(235,235,235,0.95)" : "rgba(255,255,255,0.38)",
+                color: isActive ? "rgba(235,235,235,0.95)" : "rgba(255,255,255,0.85)",
                 transition: "color 0.15s ease", letterSpacing: "-0.01em",
             }}>
                 {item.label}
@@ -138,7 +143,7 @@ function NavItem({ item, isActive }: { item: { href: string; icon: string; label
     );
 }
 
-export default function Sidebar() {
+function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
     const pathname = usePathname();
     const router = useRouter();
     const { data: user } = trpc.auth.me.useQuery();
@@ -147,18 +152,7 @@ export default function Sidebar() {
     });
 
     return (
-        <aside style={{
-            width: 255, flexShrink: 0, height: "100vh", position: "sticky", top: 0,
-            display: "flex", flexDirection: "column",
-            background: "rgba(7,7,7,0.9)",
-            backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)",
-            borderRight: "1px solid rgba(255,255,255,0.04)", zIndex: 40,
-        }}>
-            <div style={{
-                position: "absolute", top: 0, left: 0, right: 0, height: "1px",
-                background: "linear-gradient(90deg, transparent 5%, rgba(255,107,0,0.2) 50%, transparent 95%)",
-            }} />
-
+        <>
             <div style={{ padding: "22px 18px 16px" }}>
                 <Link href="/" style={{ display: "flex", alignItems: "center", gap: 9, textDecoration: "none" }}>
                     <div style={{
@@ -181,12 +175,12 @@ export default function Sidebar() {
                 flex: 1, overflowY: "auto", overflowX: "hidden",
                 padding: "0 9px", display: "flex", flexDirection: "column", gap: 18, paddingBottom: 16,
             }}>
-                {NAV_GROUPS.map((group) => (
+                {NAV_GROUPS.filter(g => g.label !== "Admin" || user?.role === "ADMIN").map((group) => (
                     <div key={group.label} style={{ display: "flex", flexDirection: "column", gap: 1 }}>
                         {group.label !== "Main" && (
                             <h4 style={{
                                 paddingLeft: 10, marginBottom: 4,
-                                fontSize: 9.5, fontWeight: 600, color: "rgba(255,255,255,0.18)",
+                                fontSize: 9.5, fontWeight: 600, color: "rgba(255,255,255,0.3)",
                                 letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "var(--font-sans,system-ui)",
                             }}>
                                 {group.label}
@@ -195,7 +189,7 @@ export default function Sidebar() {
                         {group.items.map((item) => (
                             item.comingSoon
                                 ? <ComingSoonItem key={item.href} item={item} />
-                                : <NavItem key={item.href} item={item} isActive={pathname === item.href} />
+                                : <NavItem key={item.href} item={item} isActive={pathname === item.href} onClick={onNavClick} />
                         ))}
                     </div>
                 ))}
@@ -204,7 +198,6 @@ export default function Sidebar() {
             <div style={{ margin: "0 14px 10px", height: "1px", background: "rgba(255,255,255,0.04)" }} />
 
             <div style={{ padding: "0 10px 18px", display: "flex", flexDirection: "column", gap: 6 }}>
-
                 <div style={{
                     padding: "14px 14px 12px",
                     borderRadius: 12,
@@ -306,6 +299,78 @@ export default function Sidebar() {
                     </span>
                 </button>
             </div>
-        </aside>
+        </>
+    );
+}
+
+export default function Sidebar() {
+    const { isMobile, isTablet } = useWindowSize();
+    const isSmall = isMobile || isTablet;
+    const [open, setOpen] = useState(false);
+
+    if (!isSmall) {
+        return (
+            <aside style={{
+                width: 255, flexShrink: 0, height: "100vh", position: "sticky", top: 0,
+                display: "flex", flexDirection: "column",
+                background: "rgba(7,7,7,0.9)",
+                backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)",
+                borderRight: "1px solid rgba(255,255,255,0.04)", zIndex: 40,
+            }}>
+                <div style={{
+                    position: "absolute", top: 0, left: 0, right: 0, height: "1px",
+                    background: "linear-gradient(90deg, transparent 5%, rgba(255,107,0,0.2) 50%, transparent 95%)",
+                }} />
+                <SidebarContent />
+            </aside>
+        );
+    }
+
+    return (
+        <>
+            <button
+                onClick={() => setOpen(true)}
+                style={{
+                    position: "fixed", top: 14, left: 14, zIndex: 50,
+                    width: 40, height: 40, borderRadius: 10,
+                    background: "rgba(7,7,7,0.85)", backdropFilter: "blur(16px)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    cursor: "pointer",
+                }}
+            >
+                <Icon icon="ph:list-bold" style={{ fontSize: 18, color: "rgba(255,255,255,0.6)" }} />
+            </button>
+
+            <AnimatePresence>
+                {open && (
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            onClick={() => setOpen(false)}
+                            style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 50 }}
+                        />
+                        <motion.aside
+                            initial={{ x: "-100%" }}
+                            animate={{ x: 0 }}
+                            exit={{ x: "-100%" }}
+                            transition={{ type: "spring", stiffness: 400, damping: 40 }}
+                            style={{
+                                position: "fixed", top: 0, left: 0, bottom: 0, width: 280, zIndex: 51,
+                                display: "flex", flexDirection: "column",
+                                background: "rgba(7,7,7,0.95)",
+                                backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)",
+                                borderRight: "1px solid rgba(255,255,255,0.06)",
+                            }}
+                        >
+                            <SidebarContent onNavClick={() => setOpen(false)} />
+                        </motion.aside>
+                    </>
+                )}
+            </AnimatePresence>
+        </>
     );
 }

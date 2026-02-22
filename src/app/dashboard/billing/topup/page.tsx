@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/components/ui/Toast";
+import { useWindowSize } from "@/hooks/useWindowSize";
 
 const CRYPTOS = [
     { id: "btc", symbol: "BTC", name: "Bitcoin", network: "Bitcoin Network", icon: "cryptocurrency:btc", accent: "#F7931A" },
@@ -23,6 +24,8 @@ const QUICK = [10, 25, 50, 100, 250, 500];
 
 export default function TopUpPage() {
     const router = useRouter();
+    const { isMobile, isTablet } = useWindowSize();
+    const isSmall = isMobile || isTablet;
     const toast = useToast();
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -51,7 +54,7 @@ export default function TopUpPage() {
             display: "flex",
             alignItems: "flex-start",
             justifyContent: "center",
-            padding: "60px 56px",
+            padding: isSmall ? "80px 20px 40px" : "60px 56px",
             minHeight: "100vh",
             position: "relative",
         }}>
@@ -147,7 +150,7 @@ export default function TopUpPage() {
 
                     <div style={{ height: "1px", background: "rgba(255,255,255,0.04)", marginBottom: 14 }} />
 
-                    <div style={{ display: "flex", gap: 6 }}>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                         {QUICK.map((v) => {
                             const on = amount === String(v);
                             return (
@@ -192,7 +195,7 @@ export default function TopUpPage() {
                         marginBottom: 12,
                     }}>Currency</p>
 
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: isSmall ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: 8 }}>
                         {CRYPTOS.map((c, i) => {
                             const on = crypto === c.id;
                             return (
@@ -301,9 +304,9 @@ export default function TopUpPage() {
                                 border: "1px solid rgba(255,255,255,0.045)",
                             }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-                                    <Icon icon={selected!.icon} style={{ fontSize: 18 }} />
+                                    <Icon icon={selected!.icon} style={{ fontSize: 18, color: selected!.accent }} />
                                     <span style={{ fontSize: 13, fontWeight: 500, color: "rgba(235,235,235,0.75)", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "-0.01em" }}>
-                                        ${num.toFixed(2)} via {selected!.symbol}
+                                        Paying <strong>${num.toFixed(2)}</strong> via {selected!.symbol}
                                     </span>
                                 </div>
                             </div>
@@ -353,16 +356,10 @@ export default function TopUpPage() {
                             : ready
                                 ? <><Icon icon="ph:receipt" style={{ fontSize: 15 }} />Generate Invoice</>
                                 : num < 10 && num > 0
-                                    ? "Minimum $10"
+                                    ? "Minimum deposit is $10"
                                     : "Select an amount & currency"
                         }
                     </button>
-
-                    {num > 0 && num < 10 && (
-                        <p style={{ textAlign: "center" as const, marginTop: 8, fontSize: 11, color: "rgba(239,68,68,0.6)", fontFamily: "var(--font-sans,system-ui)" }}>
-                            Minimum deposit is $10
-                        </p>
-                    )}
                 </motion.div>
 
             </div>

@@ -7,6 +7,7 @@ import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
 import { useToast } from "@/components/ui/Toast";
 import NextImage from "next/image";
+import { useWindowSize } from "@/hooks/useWindowSize";
 
 const CRYPTO_META: Record<string, { name: string; icon: string; symbol: string; color: string }> = {
     btc: { name: "Bitcoin", symbol: "BTC", icon: "cryptocurrency-color:btc", color: "#F7931A" },
@@ -20,9 +21,16 @@ const CRYPTO_META: Record<string, { name: string; icon: string; symbol: string; 
 };
 
 const STATUS_CONFIG = {
+    waiting: { label: "Awaiting Payment", color: "rgb(251,191,36)", bg: "rgba(251,191,36,0.08)", border: "rgba(251,191,36,0.2)", icon: "ph:clock" },
     pending: { label: "Awaiting Payment", color: "rgb(251,191,36)", bg: "rgba(251,191,36,0.08)", border: "rgba(251,191,36,0.2)", icon: "ph:clock" },
-    confirmed: { label: "Payment Confirmed", color: "rgb(52,211,153)", bg: "rgba(52,211,153,0.08)", border: "rgba(52,211,153,0.2)", icon: "ph:check-circle" },
-    expired: { label: "Invoice Expired", color: "rgb(239,68,68)", bg: "rgba(239,68,68,0.06)", border: "rgba(239,68,68,0.15)", icon: "ph:x-circle" },
+    confirming: { label: "Confirming", color: "rgb(96,165,250)", bg: "rgba(96,165,250,0.08)", border: "rgba(96,165,250,0.2)", icon: "ph:spinner" },
+    confirmed: { label: "Confirmed", color: "rgb(52,211,153)", bg: "rgba(52,211,153,0.08)", border: "rgba(52,211,153,0.2)", icon: "ph:check-circle" },
+    sending: { label: "Processing", color: "rgb(96,165,250)", bg: "rgba(96,165,250,0.08)", border: "rgba(96,165,250,0.2)", icon: "ph:paper-plane-tilt" },
+    partially_paid: { label: "Partially Paid", color: "rgb(249,115,22)", bg: "rgba(249,115,22,0.08)", border: "rgba(249,115,22,0.2)", icon: "ph:warning-circle" },
+    finished: { label: "Paid", color: "rgb(52,211,153)", bg: "rgba(52,211,153,0.08)", border: "rgba(52,211,153,0.2)", icon: "ph:check-circle" },
+    failed: { label: "Failed", color: "rgb(239,68,68)", bg: "rgba(239,68,68,0.06)", border: "rgba(239,68,68,0.15)", icon: "ph:x-circle" },
+    refunded: { label: "Refunded", color: "rgba(255,255,255,0.4)", bg: "rgba(255,255,255,0.02)", border: "rgba(255,255,255,0.06)", icon: "ph:arrow-u-up-left" },
+    expired: { label: "Expired", color: "rgb(239,68,68)", bg: "rgba(239,68,68,0.06)", border: "rgba(239,68,68,0.15)", icon: "ph:x-circle" },
     cancelled: { label: "Cancelled", color: "rgba(255,255,255,0.3)", bg: "rgba(255,255,255,0.02)", border: "rgba(255,255,255,0.06)", icon: "ph:minus-circle" },
 };
 
@@ -85,6 +93,8 @@ function Countdown({ expiresAt }: { expiresAt: Date }) {
 export default function InvoicePage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
     const router = useRouter();
+    const { isMobile, isTablet } = useWindowSize();
+    const isSmall = isMobile || isTablet;
     const toast = useToast();
     const { data: invoice, isLoading, error, refetch } = trpc.billing.getInvoice.useQuery({ id }, { refetchInterval: 15000 });
 
@@ -112,10 +122,10 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=ffffff&bgcolor=0a0a0a&data=${encodeURIComponent(qrData)}`;
 
     return (
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", padding: "48px" }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", padding: isSmall ? "80px 20px 40px" : "48px" }}>
             <div style={{ width: "100%", maxWidth: 860 }}>
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} style={{ marginBottom: 32 }}>
-                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 20 }}>
+                    <div style={{ display: "flex", flexDirection: isSmall ? "column" : "row", alignItems: "flex-start", justifyContent: "space-between", gap: 20 }}>
                         <div>
                             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
                                 <div style={{ height: 1, width: 24, background: "rgba(255,107,0,0.5)" }} />
@@ -135,9 +145,9 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
                     </div>
                 </motion.div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: 16, alignItems: "start" }}>
+                <div style={{ display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 280px", gap: 16, alignItems: "start" }}>
                     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                        {invoice.status === "pending" && (
+                        {(invoice.status === "pending" || invoice.status === "waiting") && (
                             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
                                 <Countdown expiresAt={new Date(invoice.expiresAt)} />
                             </motion.div>
@@ -245,15 +255,19 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
                                 <div>
                                     <p style={{ fontSize: 13, fontWeight: 600, color: status.color, fontFamily: "var(--font-sans,system-ui)" }}>{status.label}</p>
                                     <p style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", fontFamily: "var(--font-sans,system-ui)", marginTop: 2 }}>
-                                        {invoice.status === "pending" ? "Waiting for blockchain confirmation" : invoice.status === "confirmed" ? "Funds added to your balance" : "This invoice can no longer be paid"}
+                                        {["pending", "waiting"].includes(invoice.status) ? "Waiting for blockchain confirmation"
+                                            : ["confirming", "sending"].includes(invoice.status) ? "Transaction detected, confirming on blockchain..."
+                                                : ["confirmed", "finished"].includes(invoice.status) ? "Funds successfully added to your balance"
+                                                    : invoice.status === "partially_paid" ? "Transaction detected but amount was insufficient"
+                                                        : "This invoice can no longer be paid"}
                                     </p>
                                 </div>
                             </div>
-                            {invoice.status === "pending" && (
+                            {["pending", "waiting", "confirming", "sending"].includes(invoice.status) && (
                                 <button type="button" onClick={() => refetch()} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "8px", borderRadius: 9, border: "1px solid rgba(255,255,255,0.07)", background: "rgba(255,255,255,0.02)", color: "rgba(255,255,255,0.4)", fontSize: 12, fontWeight: 500, fontFamily: "var(--font-sans,system-ui)", cursor: "pointer", transition: "all 0.15s" }}
                                     onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.05)")}
                                     onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.02)")}>
-                                    <Icon icon="ph:arrows-clockwise" style={{ fontSize: 14 }} />
+                                    <Icon icon={invoice.status === "confirming" || invoice.status === "sending" ? "ph:spinner" : "ph:arrows-clockwise"} style={{ fontSize: 14, animation: invoice.status === "confirming" || invoice.status === "sending" ? "spin 1.5s linear infinite" : "none" }} />
                                     Check Status
                                 </button>
                             )}

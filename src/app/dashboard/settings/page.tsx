@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { Icon } from "@iconify/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/components/ui/Toast";
+import { useWindowSize } from "@/hooks/useWindowSize";
 
 const I = {
     width: "100%",
@@ -303,6 +304,8 @@ function DeleteDialog({ onClose }: { onClose: () => void }) {
 
 export default function SettingsPage() {
     const router = useRouter();
+    const { isMobile, isTablet } = useWindowSize();
+    const isSmall = isMobile || isTablet;
     const { data: user, isLoading, error } = trpc.auth.me.useQuery();
     const [deleteOpen, setDeleteOpen] = useState(false);
 
@@ -317,7 +320,7 @@ export default function SettingsPage() {
         <>
             <AnimatePresence>{deleteOpen && <DeleteDialog onClose={() => setDeleteOpen(false)} />}</AnimatePresence>
 
-            <div style={{ padding: "44px 48px", maxWidth: 1100, width: "100%" }}>
+            <div style={{ padding: isSmall ? "80px 20px 40px" : "44px 48px", maxWidth: 1100, width: "100%" }}>
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} style={{ marginBottom: 36 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
                         <div style={{ height: 1, width: 28, background: "rgba(255,107,0,0.5)" }} />
@@ -331,7 +334,7 @@ export default function SettingsPage() {
                     </p>
                 </motion.div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18, alignItems: "start" }}>
+                <div style={{ display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: 18, alignItems: "start" }}>
                     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
                         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.38, delay: 0.04 }}>
                             <ProfileSection user={user} />
@@ -349,7 +352,7 @@ export default function SettingsPage() {
                                 <div style={{ position: "absolute", inset: "0 0 auto", height: 1, background: "linear-gradient(90deg,transparent 5%,rgba(239,68,68,0.2) 50%,transparent 95%)", pointerEvents: "none" }} />
                                 <CardHeader icon="ph:warning-diamond" title="Danger Zone" description="Irreversible actions. Proceed with caution." />
                                 <div style={{ padding: "16px 24px 20px" }}>
-                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 20, padding: "14px 16px", borderRadius: 12, background: "rgba(239,68,68,0.03)", border: "1px solid rgba(239,68,68,0.08)" }}>
+                                    <div style={{ display: "flex", flexDirection: isSmall ? "column" : "row", alignItems: isSmall ? "flex-start" : "center", justifyContent: "space-between", gap: 20, padding: "14px 16px", borderRadius: 12, background: "rgba(239,68,68,0.03)", border: "1px solid rgba(239,68,68,0.08)" }}>
                                         <div>
                                             <p style={{ fontSize: 13, fontWeight: 600, color: "rgba(235,235,235,0.82)", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "-0.01em" }}>Delete Account</p>
                                             <p style={{ fontSize: 11.5, color: "rgba(255,255,255,0.25)", marginTop: 3, fontFamily: "var(--font-sans,system-ui)", lineHeight: 1.5 }}>
@@ -357,7 +360,7 @@ export default function SettingsPage() {
                                             </p>
                                         </div>
                                         <button onClick={() => setDeleteOpen(true)} type="button"
-                                            style={{ flexShrink: 0, fontSize: 12.5, padding: "8px 16px", borderRadius: 9, background: "transparent", border: "1px solid rgba(239,68,68,0.2)", color: "rgba(239,68,68,0.75)", cursor: "pointer", fontWeight: 500, fontFamily: "var(--font-sans,system-ui)", transition: "all 0.15s", whiteSpace: "nowrap" }}
+                                            style={{ flexShrink: 0, fontSize: 12.5, padding: "8px 16px", borderRadius: 9, background: "transparent", border: "1px solid rgba(239,68,68,0.2)", color: "rgba(239,68,68,0.75)", cursor: "pointer", fontWeight: 500, fontFamily: "var(--font-sans,system-ui)", transition: "all 0.15s", whiteSpace: "nowrap", width: isSmall ? "100%" : "auto" }}
                                             onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(239,68,68,0.08)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.3)"; }}
                                             onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.2)"; }}>
                                             Delete Account

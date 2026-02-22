@@ -11,14 +11,14 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
     const accessToken = cookieStore.get("access_token")?.value;
     const refreshToken = cookieStore.get("refresh_token")?.value;
 
-    let user: { id: string; email: string; name: string; balance: number } | null = null;
+    let user: { id: string; email: string; name: string; balance: number; role: "USER" | "ADMIN" } | null = null;
 
     if (accessToken) {
         const payload = await verifyAccessToken(accessToken);
         if (payload?.userId) {
             user = await db.user.findUnique({
                 where: { id: payload.userId },
-                select: { id: true, email: true, name: true, balance: true },
+                select: { id: true, email: true, name: true, balance: true, role: true },
             });
         }
     }
@@ -32,7 +32,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
                 if (valid) {
                     user = await db.user.findUnique({
                         where: { id: payload.userId },
-                        select: { id: true, email: true, name: true, balance: true },
+                        select: { id: true, email: true, name: true, balance: true, role: true },
                     });
 
                     if (user) {
@@ -87,6 +87,22 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
             code: "UNAUTHORIZED",
             message: "You must be logged in to perform this action",
         });
+    }
+
+    return next({
+        ctx: {
+            ...ctx,
+            user: ctx.user,
+        },
+    });
+});
+
+export const adminProcedure = t.procedure.use(({ ctx, next }) => {
+    if (!ctx.user) {
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "You must be logged in" });
+    }
+    if (ctx.user.role !== "ADMIN") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "You do not have permission to perform this action" });
     }
 
     return next({
