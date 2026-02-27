@@ -7,9 +7,7 @@ export const metadata = {
 
 export default function LoginRoute() {
     return (
-        <div className="relative min-h-screen bg-background">
-            <div className="bg-depth" />
-            <div className="grain-overlay" />
+        <div className="relative min-h-screen">
             <LoginPage />
         </div>
     );

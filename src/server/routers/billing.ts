@@ -8,7 +8,7 @@ const WEBHOOK_URL = process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC
 export const billingRouter = createTRPCRouter({
     createInvoice: protectedProcedure
         .input(z.object({
-            amountUsd: z.number().min(10, "Minimum deposit is $10"),
+            amountUsd: z.number().min(2, "Minimum deposit is $2"),
             crypto: z.enum(["btc", "eth", "usdt", "usdc", "ltc", "sol", "xmr", "bnb"]),
         }))
         .mutation(async ({ ctx, input }) => {

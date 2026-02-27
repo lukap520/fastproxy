@@ -152,16 +152,17 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="relative min-h-screen flex items-center justify-center px-5 py-16">
-            <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[520px] h-[280px] rounded-full bg-accent/[0.01] blur-[200px] -mt-10" />
+        <div className="relative min-h-screen bg-black flex items-center justify-center px-5 py-16">
+            <div className="bg-depth" />
+            <div className="grid-bg" />
 
             <div className="w-full max-w-[440px]">
                 <motion.div {...field(0.05)} className="flex items-center justify-center mb-8">
                     <Link href="/" className="flex items-center gap-2">
                         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent/10">
-                            <Icon icon="mdi:flash" className="text-accent text-sm" />
+                            <Icon icon="ph:lightning" className="text-accent text-sm" />
                         </div>
-                        <span className="font-heading text-[15px] font-semibold tracking-tight text-foreground">
+                        <span className="font-heading text-[15px] font-bold tracking-tight text-white drop-shadow-sm">
                             FastProxy
                         </span>
                     </Link>
@@ -171,22 +172,22 @@ export default function RegisterPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.55, delay: 0.08, ease }}
-                    className="relative rounded-2xl border border-white/[0.07] bg-white/[0.025] backdrop-blur-xl p-8 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)]"
+                    className="relative rounded-2xl border border-white/[0.12] bg-white/[0.04] backdrop-blur-xl p-8 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.6)]"
                 >
                     <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent rounded-t-2xl" />
 
                     <motion.div {...field(0.15)} className="mb-6">
-                        <h1 className="font-heading text-[1.6rem] font-bold tracking-tight text-foreground leading-tight">
+                        <h1 className="font-heading text-[1.65rem] font-bold tracking-tight text-white leading-tight drop-shadow-md">
                             Create your account
                         </h1>
-                        <p className="mt-1 text-[13px] text-muted/50">
+                        <p className="mt-1 text-[13px] font-semibold text-gray-300 drop-shadow-sm">
                             Get started — no credit card required
                         </p>
                     </motion.div>
 
                     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                         <motion.div {...field(0.2)}>
-                            <label className="auth-label">Full name</label>
+                            <label className="auth-label text-white/90 font-bold">Full name</label>
                             <div className="auth-input-wrap">
                                 <Icon icon="mdi:account-outline" className="auth-input-icon" />
                                 <input
@@ -202,7 +203,7 @@ export default function RegisterPage() {
                         </motion.div>
 
                         <motion.div {...field(0.25)}>
-                            <label className="auth-label">Email address</label>
+                            <label className="auth-label text-white/90 font-bold">Email address</label>
                             <div className="auth-input-wrap">
                                 <Icon icon="mdi:email-outline" className="auth-input-icon" />
                                 <input
@@ -218,7 +219,7 @@ export default function RegisterPage() {
                         </motion.div>
 
                         <motion.div {...field(0.3)}>
-                            <label className="auth-label">Password</label>
+                            <label className="auth-label text-white/90 font-bold">Password</label>
                             <div className="auth-input-wrap">
                                 <Icon icon="mdi:lock-outline" className="auth-input-icon" />
                                 <input
@@ -245,7 +246,7 @@ export default function RegisterPage() {
                         </motion.div>
 
                         <motion.div {...field(0.35)}>
-                            <label className="auth-label">Confirm password</label>
+                            <label className="auth-label text-white/90 font-bold">Confirm password</label>
                             <div className="auth-input-wrap">
                                 <Icon icon="mdi:lock-check-outline" className="auth-input-icon" />
                                 <input
@@ -275,14 +276,14 @@ export default function RegisterPage() {
                             <label
                                 htmlFor="tos"
                                 onClick={() => setTos(!tos)}
-                                className="text-[11px] text-muted/40 leading-relaxed cursor-pointer select-none"
+                                className="text-[11px] text-gray-400 leading-relaxed cursor-pointer select-none font-medium"
                             >
                                 I agree to the{" "}
-                                <span className="text-accent/60 hover:text-accent transition-colors duration-200">
+                                <span className="text-accent/80 hover:text-accent transition-colors duration-200 font-bold">
                                     Terms of Service
                                 </span>{" "}
                                 and{" "}
-                                <span className="text-accent/60 hover:text-accent transition-colors duration-200">
+                                <span className="text-accent/80 hover:text-accent transition-colors duration-200 font-bold">
                                     Privacy Policy
                                 </span>
                             </label>
@@ -304,11 +305,11 @@ export default function RegisterPage() {
                         </motion.div>
                     </form>
 
-                    <motion.p {...field(0.52)} className="mt-6 text-center text-[12px] text-muted/40">
+                    <motion.p {...field(0.52)} className="mt-6 text-center text-[12px] font-medium text-gray-500">
                         Already have an account?{" "}
                         <Link
                             href="/login"
-                            className="text-accent/70 hover:text-accent transition-colors duration-200 font-medium"
+                            className="text-accent/80 hover:text-accent transition-colors duration-200 font-bold"
                         >
                             Sign in
                         </Link>
@@ -318,7 +319,7 @@ export default function RegisterPage() {
                 <motion.div {...field(0.56)} className="mt-6 flex justify-center">
                     <Link
                         href="/"
-                        className="group flex items-center gap-1.5 text-[12px] text-muted/30 transition-colors duration-200 hover:text-foreground/60"
+                        className="group flex items-center gap-1.5 text-[12px] font-medium text-gray-500 transition-colors duration-200 hover:text-white"
                     >
                         <Icon
                             icon="mdi:arrow-left"

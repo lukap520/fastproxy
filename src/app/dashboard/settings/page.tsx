@@ -15,7 +15,7 @@ const I = {
     borderRadius: 10,
     border: "1px solid rgba(255,255,255,0.06)",
     background: "rgba(255,255,255,0.025)",
-    color: "rgba(235,235,235,0.9)",
+    color: "#FFFFFF",
     fontSize: 13.5,
     fontFamily: "var(--font-sans,system-ui)",
     outline: "none",
@@ -28,7 +28,7 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
-                <label style={{ fontSize: 10.5, fontWeight: 600, color: "rgba(255,255,255,0.28)", textTransform: "uppercase" as const, letterSpacing: "0.09em", fontFamily: "var(--font-sans,system-ui)" }}>
+                <label style={{ fontSize: 10.5, fontWeight: 700, color: "rgba(255,255,255,0.75)", textTransform: "uppercase" as const, letterSpacing: "0.1em", fontFamily: "var(--font-sans,system-ui)", textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}>
                     {label}
                 </label>
                 {hint && <span style={{ fontSize: 10.5, color: "rgba(255,255,255,0.18)", fontFamily: "var(--font-sans,system-ui)" }}>{hint}</span>}
@@ -68,7 +68,7 @@ function Btn({ loading, children, danger, onClick, type = "submit" }: { loading?
                 display: "inline-flex", alignItems: "center", gap: 7,
                 padding: "9px 18px", borderRadius: 9, border: "none",
                 background: loading ? `${base}80` : base,
-                color: "rgba(255,255,255,0.92)",
+                color: "#FFFFFF",
                 fontSize: 13, fontWeight: 600,
                 fontFamily: "var(--font-sans,system-ui)",
                 cursor: loading ? "not-allowed" : "pointer",
@@ -110,8 +110,8 @@ function CardHeader({ icon, title, description }: { icon: string; title: string;
                 <Icon icon={icon} style={{ fontSize: 18, color: "rgba(255,107,0,0.8)" }} />
             </div>
             <div>
-                <h3 style={{ fontSize: 14, fontWeight: 700, color: "rgba(235,235,235,0.92)", fontFamily: "var(--font-heading,system-ui)", letterSpacing: "-0.02em" }}>{title}</h3>
-                <p style={{ fontSize: 12, color: "rgba(255,255,255,0.28)", marginTop: 2, fontFamily: "var(--font-sans,system-ui)", lineHeight: 1.5 }}>{description}</p>
+                <h3 style={{ fontSize: 14.5, fontWeight: 700, color: "#FFFFFF", fontFamily: "var(--font-heading,system-ui)", letterSpacing: "-0.02em", textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}>{title}</h3>
+                <p style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginTop: 2, fontFamily: "var(--font-sans,system-ui)", lineHeight: 1.5, textShadow: "0 1px 2px rgba(0,0,0,0.2)" }}>{description}</p>
             </div>
         </div>
     );
@@ -222,8 +222,8 @@ function SessionsSection() {
                             <Icon icon={s.userAgent?.includes("Mobile") ? "ph:device-mobile" : "ph:monitor"} style={{ fontSize: 17, color: i === 0 ? "rgba(255,107,0,0.6)" : "rgba(255,255,255,0.2)" }} />
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                            <p style={{ fontSize: 12.5, fontWeight: 500, color: "rgba(235,235,235,0.82)", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "-0.01em" }}>{formatUA(s.userAgent)}</p>
-                            <p style={{ fontSize: 10.5, color: "rgba(255,255,255,0.22)", marginTop: 2, fontFamily: "var(--font-sans,system-ui)" }}>
+                            <p style={{ fontSize: 12.5, fontWeight: 600, color: "#FFFFFF", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "-0.01em" }}>{formatUA(s.userAgent)}</p>
+                            <p style={{ fontSize: 10.5, color: "rgba(255,255,255,0.4)", marginTop: 2, fontFamily: "var(--font-sans,system-ui)" }}>
                                 {s.ipAddress ?? "IP unknown"} · {new Date(s.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                             </p>
                         </div>
@@ -326,7 +326,7 @@ export default function SettingsPage() {
                         <div style={{ height: 1, width: 28, background: "rgba(255,107,0,0.5)" }} />
                         <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,107,0,0.7)", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Account</span>
                     </div>
-                    <h1 style={{ fontFamily: "var(--font-heading,'Clash Display',system-ui)", fontSize: "2rem", fontWeight: 700, color: "rgba(235,235,235,0.95)", letterSpacing: "-0.04em", lineHeight: 1.15 }}>
+                    <h1 style={{ fontFamily: "var(--font-heading,'Clash Display',system-ui)", fontSize: "2rem", fontWeight: 700, color: "#FFFFFF", letterSpacing: "-0.04em", lineHeight: 1.15, textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}>
                         Settings
                     </h1>
                     <p style={{ marginTop: 6, fontSize: 13.5, color: "rgba(255,255,255,0.28)", fontFamily: "var(--font-sans,system-ui)" }}>
@@ -354,8 +354,8 @@ export default function SettingsPage() {
                                 <div style={{ padding: "16px 24px 20px" }}>
                                     <div style={{ display: "flex", flexDirection: isSmall ? "column" : "row", alignItems: isSmall ? "flex-start" : "center", justifyContent: "space-between", gap: 20, padding: "14px 16px", borderRadius: 12, background: "rgba(239,68,68,0.03)", border: "1px solid rgba(239,68,68,0.08)" }}>
                                         <div>
-                                            <p style={{ fontSize: 13, fontWeight: 600, color: "rgba(235,235,235,0.82)", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "-0.01em" }}>Delete Account</p>
-                                            <p style={{ fontSize: 11.5, color: "rgba(255,255,255,0.25)", marginTop: 3, fontFamily: "var(--font-sans,system-ui)", lineHeight: 1.5 }}>
+                                            <p style={{ fontSize: 13, fontWeight: 700, color: "#FFFFFF", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "-0.01em" }}>Delete Account</p>
+                                            <p style={{ fontSize: 11.5, color: "rgba(255,255,255,0.45)", marginTop: 3, fontFamily: "var(--font-sans,system-ui)", lineHeight: 1.5 }}>
                                                 Removes all data, sessions, and billing permanently.
                                             </p>
                                         </div>

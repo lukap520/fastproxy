@@ -14,10 +14,6 @@ const faqs = [
     a: "Median latency is under 50ms for datacenter proxies and under 200ms for residential. We route through the closest node to your target automatically.",
   },
   {
-    q: "Is there a free tier?",
-    a: "Yes. You get 1GB of bandwidth free every month with access to all proxy types. No credit card needed to start — upgrade only when your usage demands it.",
-  },
-  {
     q: "How do you ensure IP quality?",
     a: "Every IP goes through a multi-layer verification pipeline. We check for blacklists, captcha rates, and response times continuously. Bad IPs are removed within seconds.",
   },
@@ -29,8 +25,8 @@ const faqs = [
 
 const highlights = [
   { icon: "mdi:headset", label: "24/7 Support" },
-  { icon: "mdi:file-document-outline", label: "Full Docs" },
-  { icon: "mdi:code-tags", label: "API-first" },
+  { icon: "mdi:lightning-bolt-outline", label: "High Speeds" },
+  { icon: "mdi:earth", label: "Global Network" },
 ];
 
 function FAQItem({ faq, index }: { faq: (typeof faqs)[0]; index: number }) {
@@ -50,14 +46,14 @@ function FAQItem({ faq, index }: { faq: (typeof faqs)[0]; index: number }) {
         className="flex w-full items-start gap-4 py-5 text-left"
       >
         <span
-          className={`font-heading text-[13px] font-bold tracking-tight transition-colors duration-300 mt-0.5 ${open ? "text-accent" : "text-white/[0.08]"
+          className={`font-heading text-[13px] font-bold tracking-tight transition-colors duration-300 mt-0.5 ${open ? "text-accent" : "text-white/[0.3]"
             }`}
         >
           {num}
         </span>
         <div className="flex-1 relative">
           <span
-            className={`text-[14px] font-medium transition-colors duration-200 ${open ? "text-foreground" : "text-foreground/70 group-hover:text-foreground/90"
+            className={`text-[15px] font-semibold transition-colors duration-200 ${open ? "text-white drop-shadow-sm" : "text-gray-200 group-hover:text-white"
               }`}
           >
             {faq.q}
@@ -69,7 +65,7 @@ function FAQItem({ faq, index }: { faq: (typeof faqs)[0]; index: number }) {
         >
           <Icon
             icon="mdi:plus"
-            className={`text-xs transition-colors duration-300 ${open ? "text-accent" : "text-muted/30"
+            className={`text-xs transition-colors duration-300 ${open ? "text-accent" : "text-muted/60"
               }`}
           />
         </div>
@@ -88,7 +84,7 @@ function FAQItem({ faq, index }: { faq: (typeof faqs)[0]; index: number }) {
               <span className="w-[22px] shrink-0" />
               <div className="relative pl-4">
                 <div className="absolute left-0 top-0 bottom-0 w-[2px] rounded-full bg-gradient-to-b from-accent/50 via-accent/20 to-accent/0" />
-                <p className="text-[13px] leading-[1.8] text-muted/60">
+                <p className="text-[14px] font-medium leading-[1.8] text-gray-200">
                   {faq.a}
                 </p>
               </div>
@@ -111,28 +107,28 @@ export default function FAQ() {
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="lg:col-span-2"
         >
-          <h2 className="font-heading text-2xl tracking-tighter text-foreground sm:text-3xl lg:text-4xl">
-            <span className="font-extralight text-foreground/55">Common</span>{" "}
+          <h2 className="font-heading text-2xl tracking-tighter text-white sm:text-3xl lg:text-4xl drop-shadow-sm">
+            <span className="font-extralight text-white drop-shadow-sm">Common</span>{" "}
             <span className="font-bold">questions</span>
           </h2>
-          <p className="mt-3 text-sm leading-relaxed text-muted/50">
+          <p className="mt-3 text-[15px] font-medium leading-relaxed text-gray-200">
             Everything you need to know before connecting your first proxy.
           </p>
 
           <div className="mt-8 flex flex-col gap-3">
             {highlights.map((h) => (
               <div key={h.label} className="flex items-center gap-2.5">
-                <div className="flex h-6 w-6 items-center justify-center rounded-md border border-white/[0.05] bg-white/[0.02]">
-                  <Icon icon={h.icon} className="text-xs text-accent/50" />
+                <div className="flex h-6 w-6 items-center justify-center rounded-md border border-white/[0.1] bg-white/[0.05]">
+                  <Icon icon={h.icon} className="text-[13px] text-accent drop-shadow-sm" />
                 </div>
-                <span className="text-[12px] text-muted/55">{h.label}</span>
+                <span className="text-[13px] font-semibold text-gray-200">{h.label}</span>
               </div>
             ))}
           </div>
 
           <a
             href="#"
-            className="group mt-8 inline-flex items-center gap-1.5 text-[12px] font-medium text-accent/55 transition-colors duration-200 hover:text-accent"
+            className="group mt-8 inline-flex items-center gap-1.5 text-[12px] font-medium text-accent/80 transition-colors duration-200 hover:text-accent"
           >
             <Icon icon="mdi:lifebuoy" className="text-sm" />
             Contact Support

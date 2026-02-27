@@ -101,12 +101,12 @@ export default function InvoicesPage() {
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.32 }} style={{ marginBottom: 40 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
                     <div style={{ height: 1, width: 28, background: "rgba(255,107,0,0.5)" }} />
-                    <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,107,0,0.65)", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "0.12em", textTransform: "uppercase" as const }}>Payments</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,107,0,0.95)", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "0.15em", textTransform: "uppercase" as const, textShadow: "0 1px 2px rgba(0,0,0,0.2)" }}>Payments</span>
                 </div>
-                <h1 style={{ fontFamily: "var(--font-heading,'Clash Display',system-ui)", fontSize: "2rem", fontWeight: 700, color: "rgba(235,235,235,0.95)", letterSpacing: "-0.04em", lineHeight: 1.1 }}>
+                <h1 style={{ fontFamily: "var(--font-heading,'Clash Display',system-ui)", fontSize: "2rem", fontWeight: 700, color: "#FFFFFF", letterSpacing: "-0.04em", lineHeight: 1.1, textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}>
                     Invoices
                 </h1>
-                <p style={{ fontSize: 14, color: "rgba(255,255,255,0.32)", fontFamily: "var(--font-sans,system-ui)", marginTop: 6, lineHeight: 1.5 }}>
+                <p style={{ fontSize: 14, color: "rgba(255,255,255,0.45)", fontFamily: "var(--font-sans,system-ui)", marginTop: 6, lineHeight: 1.5, textShadow: "0 1px 2px rgba(0,0,0,0.2)" }}>
                     Manage your deposits and view payment history.
                 </p>
             </motion.div>
@@ -125,8 +125,8 @@ export default function InvoicesPage() {
                                 <Icon icon={s.icon} style={{ fontSize: 18, color: s.color }} />
                             </div>
                             <div>
-                                <p style={{ fontSize: 20, fontWeight: 700, color: "rgba(235,235,235,0.92)", fontFamily: "var(--font-heading,system-ui)", letterSpacing: "-0.03em" }}>{s.value}</p>
-                                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", fontFamily: "var(--font-sans,system-ui)", marginTop: 2 }}>{s.label}</p>
+                                <p style={{ fontSize: 20, fontWeight: 700, color: "#FFFFFF", fontFamily: "var(--font-heading,system-ui)", letterSpacing: "-0.03em", textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}>{s.value}</p>
+                                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", fontFamily: "var(--font-sans,system-ui)", fontWeight: 700, marginTop: 2, textTransform: "uppercase", letterSpacing: "0.05em" }}>{s.label}</p>
                             </div>
                         </motion.div>
                     ))}
@@ -180,10 +180,10 @@ export default function InvoicesPage() {
 
                                             <div style={{ flex: 1, minWidth: 0 }}>
                                                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
-                                                    <span style={{ fontSize: 13.5, fontWeight: 600, color: "rgba(235,235,235,0.85)", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "-0.01em" }}>
+                                                    <span style={{ fontSize: 13.5, fontWeight: 700, color: "#FFFFFF", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "-0.01em", textShadow: "0 1px 2px rgba(0,0,0,0.2)" }}>
                                                         {meta?.symbol ?? inv.crypto.toUpperCase()} deposit
                                                     </span>
-                                                    <span style={{ fontSize: 10.5, color: "rgba(255,255,255,0.18)", fontFamily: "monospace" }}>
+                                                    <span style={{ fontSize: 10.5, color: "rgba(255,255,255,0.35)", fontFamily: "monospace" }}>
                                                         #{inv.id.slice(-8).toUpperCase()}
                                                     </span>
                                                 </div>
@@ -201,7 +201,7 @@ export default function InvoicesPage() {
                                             {!isSmall && (
                                                 <>
                                                     <div style={{ textAlign: "right" as const, flexShrink: 0 }}>
-                                                        <p style={{ fontSize: 16, fontWeight: 700, color: "rgba(235,235,235,0.9)", fontFamily: "var(--font-heading,system-ui)", letterSpacing: "-0.02em" }}>
+                                                        <p style={{ fontSize: 16.5, fontWeight: 700, color: "#FFFFFF", fontFamily: "var(--font-heading,system-ui)", letterSpacing: "-0.02em", textShadow: "0 1px 2px rgba(0,0,0,0.2)" }}>
                                                             ${inv.amountUsd.toFixed(2)}
                                                         </p>
                                                         <p style={{ fontSize: 10.5, color: "rgba(255,255,255,0.2)", fontFamily: "monospace", marginTop: 2 }}>
@@ -223,7 +223,7 @@ export default function InvoicesPage() {
                                         {isSmall && (
                                             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", paddingLeft: 58 }}>
                                                 <div>
-                                                    <p style={{ fontSize: 15, fontWeight: 700, color: "rgba(235,235,235,0.9)", fontFamily: "var(--font-heading,system-ui)", letterSpacing: "-0.02em" }}>
+                                                    <p style={{ fontSize: 15, fontWeight: 700, color: "#FFFFFF", fontFamily: "var(--font-heading,system-ui)", letterSpacing: "-0.02em" }}>
                                                         ${inv.amountUsd.toFixed(2)}
                                                     </p>
                                                     <p style={{ fontSize: 10.5, color: "rgba(255,255,255,0.2)", fontFamily: "monospace", marginTop: 2 }}>

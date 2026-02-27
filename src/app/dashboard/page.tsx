@@ -77,9 +77,9 @@ export default function DashboardPage() {
                 <div>
                     <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
                         <div style={{ width: 24, height: 1, background: "rgba(255,107,0,0.5)" }} />
-                        <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "rgba(255,107,0,0.6)", fontFamily: "var(--font-sans,system-ui)" }}>Overview</span>
+                        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: "rgba(255,107,0,0.9)", fontFamily: "var(--font-sans,system-ui)", textShadow: "0 1px 2px rgba(0,0,0,0.2)" }}>Overview</span>
                     </div>
-                    <h1 style={{ fontFamily: "var(--font-heading,'Clash Display',system-ui)", fontSize: "2rem", fontWeight: 700, color: "rgba(235,235,235,0.95)", letterSpacing: "-0.04em", lineHeight: 1.1 }}>
+                    <h1 style={{ fontFamily: "var(--font-heading,'Clash Display',system-ui)", fontSize: "2rem", fontWeight: 700, color: "#FFFFFF", letterSpacing: "-0.04em", lineHeight: 1.1, textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}>
                         Welcome back, {user.name.split(" ")[0]}
                     </h1>
                 </div>
@@ -96,14 +96,14 @@ export default function DashboardPage() {
                         style={{ padding: "14px 18px 14px", borderRadius: 14, background: s.bg, border: `1px solid ${s.border}`, position: "relative", overflow: "hidden" }}>
                         <div style={{ position: "absolute", inset: "0 0 auto", height: 1, background: `linear-gradient(90deg,transparent 10%,${s.border} 50%,transparent 90%)`, pointerEvents: "none" }} />
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-                            <p style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: "rgba(255,255,255,0.2)", fontFamily: "var(--font-sans,system-ui)" }}>
+                            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: "rgba(255,255,255,0.75)", fontFamily: "var(--font-sans,system-ui)", textShadow: "0 1px 2px rgba(0,0,0,0.2)" }}>
                                 {s.label}
                             </p>
-                            <div style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(0,0,0,0.12)", border: `1px solid ${s.border}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                <Icon icon={s.icon} style={{ fontSize: 14, color: s.accent }} />
+                            <div style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(0,0,0,0.2)", border: `1px solid ${s.border}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                <Icon icon={s.icon} style={{ fontSize: 14, color: s.accent.replace("0.75", "1").replace("0.85", "1") }} />
                             </div>
                         </div>
-                        <p style={{ fontFamily: "var(--font-heading,system-ui)", fontSize: "1.5rem", fontWeight: 700, color: "rgba(235,235,235,0.9)", letterSpacing: "-0.04em", lineHeight: 1, marginBottom: 10 }}>
+                        <p style={{ fontFamily: "var(--font-heading,system-ui)", fontSize: "1.5rem", fontWeight: 700, color: "#FFFFFF", letterSpacing: "-0.04em", lineHeight: 1, marginBottom: 10, textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}>
                             {s.value}
                         </p>
                     </motion.div>
@@ -120,13 +120,13 @@ export default function DashboardPage() {
                                     <Icon icon="ph:receipt" style={{ fontSize: 18, color: "rgba(255,107,0,0.8)" }} />
                                 </div>
                                 <div>
-                                    <h3 style={{ fontSize: 14, fontWeight: 700, color: "rgba(235,235,235,0.92)", fontFamily: "var(--font-heading,system-ui)", letterSpacing: "-0.02em" }}>Recent Invoices</h3>
-                                    <p style={{ fontSize: 12, color: "rgba(255,255,255,0.28)", marginTop: 2, fontFamily: "var(--font-sans,system-ui)" }}>{invoices?.length ?? 0} total invoices</p>
+                                    <h3 style={{ fontSize: 14.5, fontWeight: 700, color: "#FFFFFF", fontFamily: "var(--font-heading,system-ui)", letterSpacing: "-0.02em", textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}>Recent Invoices</h3>
+                                    <p style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginTop: 2, fontFamily: "var(--font-sans,system-ui)" }}>{invoices?.length ?? 0} total invoices</p>
                                 </div>
                             </div>
-                            <Link href="/dashboard/billing/invoices" style={{ fontSize: 11, color: "rgba(255,107,0,0.6)", fontFamily: "var(--font-sans,system-ui)", textDecoration: "none", padding: "5px 10px", borderRadius: 7, border: "1px solid rgba(255,107,0,0.12)", background: "rgba(255,107,0,0.05)", transition: "background 0.12s" }}
-                                onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,107,0,0.1)")}
-                                onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(255,107,0,0.05)")}>
+                            <Link href="/dashboard/billing/invoices" style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,107,0,0.85)", fontFamily: "var(--font-sans,system-ui)", textDecoration: "none", padding: "5px 10px", borderRadius: 7, border: "1px solid rgba(255,107,0,0.25)", background: "rgba(255,107,0,0.08)", transition: "background 0.12s" }}
+                                onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,107,0,0.12)")}
+                                onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(255,107,0,0.08)")}>
                                 View all →
                             </Link>
                         </div>
@@ -146,40 +146,40 @@ export default function DashboardPage() {
                                     return (
                                         <Link key={inv.id} href={`/dashboard/invoice/${inv.id}`}
                                             style={{ display: "flex", flexDirection: isSmall ? "column" : "row", alignItems: isSmall ? "flex-start" : "center", gap: isSmall ? 10 : 14, padding: isSmall ? "14px 16px" : "14px 24px", borderBottom: idx < recent.length - 1 ? "1px solid rgba(255,255,255,0.03)" : "none", textDecoration: "none", transition: "background 0.12s" }}
-                                            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.022)")}
+                                            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.035)")}
                                             onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>
                                             <div style={{ display: "flex", alignItems: "center", gap: 12, width: "100%" }}>
-                                                <div style={{ width: 38, height: 38, borderRadius: 10, background: `${color}12`, border: `1px solid ${color}20`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                                                    <Icon icon={`cryptocurrency:${inv.crypto}`} style={{ fontSize: 20, color }} />
+                                                <div style={{ width: 38, height: 38, borderRadius: 10, background: `${color}18`, border: `1px solid ${color}35`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                                    <Icon icon={`cryptocurrency:${inv.crypto}`} style={{ fontSize: 20, color: color }} />
                                                 </div>
                                                 <div style={{ flex: 1, minWidth: 0 }}>
-                                                    <p style={{ fontSize: 13, fontWeight: 500, color: "rgba(235,235,235,0.82)", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "-0.01em" }}>
+                                                    <p style={{ fontSize: 13.5, fontWeight: 700, color: "#FFFFFF", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "-0.01em", textShadow: "0 1px 2px rgba(0,0,0,0.2)" }}>
                                                         {inv.crypto.toUpperCase()} Deposit
                                                     </p>
-                                                    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.18)", marginTop: 2, fontFamily: "var(--font-sans,system-ui)" }}>
+                                                    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 2, fontFamily: "var(--font-sans,system-ui)" }}>
                                                         {timeAgo(new Date(inv.createdAt))}
                                                     </p>
                                                 </div>
                                                 {!isSmall && (
-                                                    <p style={{ fontSize: 14.5, fontWeight: 700, color: "rgba(235,235,235,0.88)", fontFamily: "var(--font-heading,system-ui)", letterSpacing: "-0.03em", flexShrink: 0, marginRight: 8 }}>
+                                                    <p style={{ fontSize: 15, fontWeight: 700, color: "#FFFFFF", fontFamily: "var(--font-heading,system-ui)", letterSpacing: "-0.03em", flexShrink: 0, marginRight: 8, textShadow: "0 1px 2px rgba(0,0,0,0.2)" }}>
                                                         ${inv.amountUsd.toFixed(2)}
                                                     </p>
                                                 )}
                                                 {!isSmall && (
-                                                    <div style={{ display: "flex", alignItems: "center", gap: 5, padding: "3px 9px", borderRadius: 6, background: sc.bg, border: `1px solid ${sc.border}`, flexShrink: 0 }}>
+                                                    <div style={{ display: "flex", alignItems: "center", gap: 5, padding: "3px 9px", borderRadius: 6, background: sc.bg, border: `1px solid ${sc.border.replace("0.1", "0.2")}`, flexShrink: 0 }}>
                                                         <div style={{ width: 5, height: 5, borderRadius: "50%", background: sc.dot }} />
-                                                        <span style={{ fontSize: 10, fontWeight: 600, color: sc.dot, fontFamily: "var(--font-sans,system-ui)", whiteSpace: "nowrap" as const }}>{sc.label}</span>
+                                                        <span style={{ fontSize: 10, fontWeight: 700, color: sc.dot, fontFamily: "var(--font-sans,system-ui)", whiteSpace: "nowrap" as const }}>{sc.label}</span>
                                                     </div>
                                                 )}
                                             </div>
                                             {isSmall && (
                                                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", paddingLeft: 50 }}>
-                                                    <p style={{ fontSize: 14.5, fontWeight: 700, color: "rgba(235,235,235,0.88)", fontFamily: "var(--font-heading,system-ui)", letterSpacing: "-0.03em" }}>
+                                                    <p style={{ fontSize: 14.5, fontWeight: 700, color: "#FFFFFF", fontFamily: "var(--font-heading,system-ui)", letterSpacing: "-0.03em" }}>
                                                         ${inv.amountUsd.toFixed(2)}
                                                     </p>
-                                                    <div style={{ display: "flex", alignItems: "center", gap: 5, padding: "3px 9px", borderRadius: 6, background: sc.bg, border: `1px solid ${sc.border}` }}>
+                                                    <div style={{ display: "flex", alignItems: "center", gap: 5, padding: "3px 9px", borderRadius: 6, background: sc.bg, border: `1px solid ${sc.border.replace("0.1", "0.2")}` }}>
                                                         <div style={{ width: 5, height: 5, borderRadius: "50%", background: sc.dot }} />
-                                                        <span style={{ fontSize: 10, fontWeight: 600, color: sc.dot, fontFamily: "var(--font-sans,system-ui)" }}>{sc.label}</span>
+                                                        <span style={{ fontSize: 10, fontWeight: 700, color: sc.dot, fontFamily: "var(--font-sans,system-ui)" }}>{sc.label}</span>
                                                     </div>
                                                 </div>
                                             )}
@@ -195,7 +195,7 @@ export default function DashboardPage() {
                     <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: proxy ? 0.26 : 0.22 }}>
                         <GlassCard>
                             <div style={{ padding: "16px 20px 14px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                                <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.11em", textTransform: "uppercase" as const, color: "rgba(255,255,255,0.16)", fontFamily: "var(--font-sans,system-ui)" }}>
+                                <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: "rgba(255,255,255,0.75)", fontFamily: "var(--font-sans,system-ui)", textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}>
                                     Quick Actions
                                 </p>
                             </div>
@@ -214,10 +214,10 @@ export default function DashboardPage() {
                                             <Icon icon={a.icon} style={{ fontSize: 15, color: a.orange ? "rgba(255,107,0,0.85)" : "rgba(255,255,255,0.28)" }} />
                                         </div>
                                         <div style={{ flex: 1, minWidth: 0 }}>
-                                            <p style={{ fontSize: 12, fontWeight: 500, color: "rgba(235,235,235,0.78)", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "-0.01em" }}>{a.label}</p>
-                                            <p style={{ fontSize: 10.5, color: "rgba(255,255,255,0.2)", fontFamily: "var(--font-sans,system-ui)", marginTop: 1 }}>{a.sub}</p>
+                                            <p style={{ fontSize: 12, fontWeight: 600, color: "#FFFFFF", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "-0.01em" }}>{a.label}</p>
+                                            <p style={{ fontSize: 10.5, color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-sans,system-ui)", marginTop: 1 }}>{a.sub}</p>
                                         </div>
-                                        <Icon icon="ph:arrow-right" style={{ fontSize: 12, color: "rgba(255,255,255,0.1)", flexShrink: 0 }} />
+                                        <Icon icon="ph:arrow-right" style={{ fontSize: 12, color: "rgba(255,255,255,0.2)", flexShrink: 0 }} />
                                     </Link>
                                 ))}
                             </div>

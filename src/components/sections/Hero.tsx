@@ -16,7 +16,7 @@ const floatingIcons = [
 ];
 
 const stats = [
-  { value: "10M+", label: "IPs" },
+  { value: "15M+", label: "IPs" },
   { value: "<50ms", label: "Latency" },
   { value: "195+", label: "Locations" },
   { value: "99.5%", label: "Uptime" },
@@ -35,7 +35,7 @@ export default function Hero() {
           style={{ left: item.x, top: item.y, animation: `float-slow ${item.dur} ease-in-out infinite` }}
         >
           <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.02] shadow-[0_2px_12px_rgba(0,0,0,0.3)] backdrop-blur-sm">
-            <Icon icon={item.icon} className="text-xl text-accent/25" />
+            <Icon icon={item.icon} className="text-xl text-accent/50" />
           </div>
         </motion.div>
       ))}
@@ -47,9 +47,9 @@ export default function Hero() {
           transition={{ duration: 0.9, delay: 0.15, ease }}
           className="font-heading max-w-4xl text-[2.4rem] leading-[1.0] tracking-tighter sm:text-[4.5rem] lg:text-[6rem]"
         >
-          <span className="font-extralight text-foreground/55">The proxy network</span>
+          <span className="font-extralight text-white drop-shadow-sm">The proxy network</span>
           <br />
-          <span className="font-extralight text-foreground/55">that never</span>{" "}
+          <span className="font-extralight text-white drop-shadow-sm">that never</span>{" "}
           <span className="relative inline-block font-bold text-accent">
             sleeps
             <span className="absolute -bottom-1 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
@@ -60,7 +60,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.35, ease }}
-          className="mt-7 max-w-md text-[14px] leading-[1.75] text-muted/60 sm:mt-8 sm:text-[15px]"
+          className="mt-7 max-w-md text-[15px] leading-[1.75] text-gray-200 sm:mt-8 sm:text-[16px] drop-shadow-sm"
         >
           Sub-50ms routing across 195 locations. Enterprise uptime,
           zero config. Just connect and scale.
@@ -74,18 +74,18 @@ export default function Hero() {
         >
           <Link
             href="/register"
-            className="shimmer-btn inline-flex items-center gap-2 rounded-full bg-accent px-6 py-[11px] text-[13px] font-semibold text-white transition-colors duration-200 hover:bg-accent-hover shadow-[0_0_24px_rgba(255,107,0,0.2)]"
+            className="shimmer-btn inline-flex items-center gap-2 rounded-full bg-accent px-6 py-[11px] text-[13px] font-semibold text-white transition-colors duration-200 hover:bg-accent-hover"
           >
             <Icon icon="mdi:rocket-launch-outline" className="text-sm" />
-            Get Started Free
+            Get Started
           </Link>
-          <a
-            href="#"
-            className="group inline-flex items-center gap-1.5 rounded-full border border-white/[0.07] px-5 py-[11px] text-[13px] font-medium text-muted/55 transition-all duration-200 hover:border-white/[0.12] hover:text-foreground"
+          <Link
+            href="/#products"
+            className="group mt-3 sm:mt-0 inline-flex items-center justify-center gap-1.5 rounded-full border border-white/[0.15] px-5 py-[11px] text-[13px] font-medium text-white transition-all duration-200 hover:border-white/[0.25] w-full sm:w-auto bg-white/[0.05] hover:bg-white/[0.1]"
           >
-            <Icon icon="mdi:book-open-outline" className="text-sm opacity-50 group-hover:opacity-80 transition-opacity duration-200" />
-            View Docs
-          </a>
+            <Icon icon="mdi:tag-outline" className="text-sm opacity-90 group-hover:opacity-100 transition-opacity duration-200" />
+            View Pricing
+          </Link>
         </motion.div>
 
         <motion.div
@@ -97,8 +97,8 @@ export default function Hero() {
           {stats.map((s, i) => (
             <div key={s.label} className="flex items-center gap-5 sm:gap-8">
               <div className="text-center">
-                <span className="font-heading text-[15px] font-bold tracking-tight text-foreground/80 sm:text-[17px]">{s.value}</span>
-                <p className="text-[9px] tracking-widest text-muted/35 uppercase mt-0.5">{s.label}</p>
+                <span className="font-heading text-[16px] font-bold tracking-tight text-white sm:text-[18px] drop-shadow-sm">{s.value}</span>
+                <p className="text-[10px] tracking-widest text-gray-300 uppercase mt-0.5 font-medium">{s.label}</p>
               </div>
               {i < stats.length - 1 && (
                 <div className="h-5 w-px bg-gradient-to-b from-transparent via-white/[0.08] to-transparent" />

@@ -128,13 +128,13 @@ function NavItem({ item, isActive, onClick }: { item: { href: string; icon: stri
             )}
             <Icon icon={item.icon} style={{
                 fontSize: 17,
-                color: isActive ? "rgb(255,107,0)" : "rgba(255,255,255,0.6)",
+                color: isActive ? "rgb(255,107,0)" : "rgba(255,255,255,0.75)",
                 flexShrink: 0, transition: "color 0.15s ease",
             }} />
             <span style={{
                 fontSize: 13, fontFamily: "var(--font-sans,system-ui)",
-                fontWeight: isActive ? 500 : 400,
-                color: isActive ? "rgba(235,235,235,0.95)" : "rgba(255,255,255,0.85)",
+                fontWeight: isActive ? 700 : 600,
+                color: isActive ? "#FFFFFF" : "rgba(255,255,255,0.82)",
                 transition: "color 0.15s ease", letterSpacing: "-0.01em",
             }}>
                 {item.label}
@@ -154,7 +154,7 @@ function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
     return (
         <>
             <div style={{ padding: "22px 18px 16px" }}>
-                <Link href="/" style={{ display: "flex", alignItems: "center", gap: 9, textDecoration: "none" }}>
+                <Link href="/dashboard" style={{ display: "flex", alignItems: "center", gap: 9, textDecoration: "none" }}>
                     <div style={{
                         width: 30, height: 30, borderRadius: 9,
                         background: "rgba(255,107,0,0.1)", border: "1px solid rgba(255,107,0,0.18)",
@@ -164,7 +164,7 @@ function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
                     </div>
                     <span style={{
                         fontFamily: "var(--font-heading,system-ui)", fontSize: 15, fontWeight: 700,
-                        color: "rgba(235,235,235,0.95)", letterSpacing: "-0.03em",
+                        color: "#FFFFFF", letterSpacing: "-0.03em", filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.3))"
                     }}>
                         FastProxy
                     </span>
@@ -180,8 +180,9 @@ function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
                         {group.label !== "Main" && (
                             <h4 style={{
                                 paddingLeft: 10, marginBottom: 4,
-                                fontSize: 9.5, fontWeight: 600, color: "rgba(255,255,255,0.3)",
-                                letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "var(--font-sans,system-ui)",
+                                fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.7)",
+                                letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: "var(--font-sans,system-ui)",
+                                textShadow: "0 1px 2px rgba(0,0,0,0.3)"
                             }}>
                                 {group.label}
                             </h4>
@@ -213,8 +214,8 @@ function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
                     }} />
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                            <Icon icon="ph:wallet" style={{ fontSize: 13, color: "rgba(255,107,0,0.6)" }} />
-                            <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontWeight: 600, letterSpacing: "0.07em", textTransform: "uppercase", fontFamily: "var(--font-sans,system-ui)" }}>
+                            <Icon icon="ph:wallet" style={{ fontSize: 13, color: "rgba(255,107,0,1)" }} />
+                            <span style={{ fontSize: 10, color: "rgba(255,255,255,0.8)", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "var(--font-sans,system-ui)", textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}>
                                 Balance
                             </span>
                         </div>
@@ -228,10 +229,11 @@ function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
                         </Link>
                     </div>
                     <div style={{ display: "flex", alignItems: "baseline", gap: 3 }}>
-                        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-sans,system-ui)", marginBottom: 1 }}>$</span>
+                        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.85)", fontFamily: "var(--font-sans,system-ui)", fontWeight: 600, marginBottom: 1 }}>$</span>
                         <span style={{
                             fontFamily: "var(--font-heading,system-ui)", fontSize: 26, fontWeight: 700,
-                            color: "rgba(235,235,235,0.95)", letterSpacing: "-0.03em", lineHeight: 1,
+                            color: "#FFFFFF", letterSpacing: "-0.03em", lineHeight: 1,
+                            textShadow: "0 2px 4px rgba(0,0,0,0.3)"
                         }}>
                             {user?.balance !== undefined ? user.balance.toFixed(2) : "0.00"}
                         </span>
@@ -253,14 +255,14 @@ function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
                     )}
                     <div style={{ flex: 1, minWidth: 0 }}>
                         <p style={{
-                            fontSize: 12, fontWeight: 500, color: "rgba(235,235,235,0.85)",
+                            fontSize: 12, fontWeight: 600, color: "#FFFFFF",
                             fontFamily: "var(--font-sans,system-ui)", overflow: "hidden", textOverflow: "ellipsis",
                             whiteSpace: "nowrap", letterSpacing: "-0.01em",
                         }}>
                             {user?.name ?? "—"}
                         </p>
                         <p style={{
-                            fontSize: 10, color: "rgba(255,255,255,0.22)", fontFamily: "var(--font-sans,system-ui)",
+                            fontSize: 10, color: "rgba(255,255,255,0.45)", fontFamily: "var(--font-sans,system-ui)",
                             overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginTop: 1,
                         }}>
                             {user?.email ?? ""}

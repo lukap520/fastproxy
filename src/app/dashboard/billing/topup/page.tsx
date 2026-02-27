@@ -44,7 +44,7 @@ export default function TopUpPage() {
 
     const num = parseFloat(amount) || 0;
     const selected = CRYPTOS.find((c) => c.id === crypto);
-    const ready = num >= 10 && crypto !== null;
+    const ready = num >= 2 && crypto !== null;
 
     if (!user) return null;
 
@@ -69,20 +69,22 @@ export default function TopUpPage() {
                     <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
                         <div style={{ width: 24, height: 1, background: "rgba(255,107,0,0.5)" }} />
                         <span style={{
-                            fontSize: 9.5, fontWeight: 700, letterSpacing: "0.14em",
+                            fontSize: 10, fontWeight: 700, letterSpacing: "0.15em",
                             textTransform: "uppercase" as const,
-                            color: "rgba(255,107,0,0.6)",
+                            color: "rgba(255,107,0,0.95)",
                             fontFamily: "var(--font-sans,system-ui)",
+                            textShadow: "0 1px 2px rgba(0,0,0,0.2)"
                         }}>Add Funds</span>
                     </div>
                     <h1 style={{
                         fontFamily: "var(--font-heading,system-ui)",
                         fontSize: "1.85rem",
                         fontWeight: 700,
-                        color: "rgba(235,235,235,0.93)",
+                        color: "#FFFFFF",
                         letterSpacing: "-0.04em",
                         lineHeight: 1.1,
                         marginBottom: 6,
+                        textShadow: "0 2px 4px rgba(0,0,0,0.3)"
                     }}>Top up balance</h1>
                     <p style={{
                         fontSize: 13,
@@ -104,7 +106,7 @@ export default function TopUpPage() {
                         fontWeight: 700,
                         letterSpacing: "0.11em",
                         textTransform: "uppercase" as const,
-                        color: "rgba(255,255,255,0.16)",
+                        color: "rgba(255,255,255,0.45)",
                         fontFamily: "var(--font-sans,system-ui)",
                         marginBottom: 12,
                     }}>Amount</p>
@@ -119,9 +121,10 @@ export default function TopUpPage() {
                             fontWeight: 700,
                             letterSpacing: "-0.05em",
                             lineHeight: 1,
-                            color: num > 0 ? "rgba(255,107,0,0.6)" : "rgba(255,255,255,0.08)",
+                            color: num > 0 ? "rgba(255,107,0,0.9)" : "rgba(255,255,255,0.12)",
                             transition: "color 0.18s",
                             userSelect: "none" as const,
+                            textShadow: num > 0 ? "0 4px 12px rgba(255,107,0,0.25)" : "none"
                         }}>$</span>
                         <input
                             ref={inputRef}
@@ -140,7 +143,7 @@ export default function TopUpPage() {
                                 fontWeight: 700,
                                 letterSpacing: "-0.05em",
                                 lineHeight: 1,
-                                color: "rgba(235,235,235,0.9)",
+                                color: "#FFFFFF",
                                 width: "100%",
                                 minWidth: 0,
                                 MozAppearance: "textfield",
@@ -163,16 +166,16 @@ export default function TopUpPage() {
                                         borderRadius: 7,
                                         border: on ? "1px solid rgba(255,107,0,0.35)" : "1px solid rgba(255,255,255,0.06)",
                                         background: on ? "rgba(255,107,0,0.08)" : "transparent",
-                                        color: on ? "rgba(255,107,0,0.85)" : "rgba(255,255,255,0.3)",
+                                        color: on ? "rgb(255,107,0)" : "rgba(255,255,255,0.45)",
                                         fontSize: 12,
-                                        fontWeight: 600,
+                                        fontWeight: 700,
                                         fontFamily: "var(--font-sans,system-ui)",
                                         cursor: "pointer",
                                         transition: "all 0.14s",
                                         letterSpacing: "-0.01em",
                                     }}
-                                    onMouseEnter={(e) => { if (!on) { const el = e.currentTarget; el.style.borderColor = "rgba(255,255,255,0.11)"; el.style.color = "rgba(255,255,255,0.55)"; } }}
-                                    onMouseLeave={(e) => { if (!on) { const el = e.currentTarget; el.style.borderColor = "rgba(255,255,255,0.06)"; el.style.color = "rgba(255,255,255,0.3)"; } }}
+                                    onMouseEnter={(e) => { if (!on) { const el = e.currentTarget; el.style.borderColor = "rgba(255,255,255,0.18)"; el.style.color = "rgba(255,255,255,0.75)"; } }}
+                                    onMouseLeave={(e) => { if (!on) { const el = e.currentTarget; el.style.borderColor = "rgba(255,255,255,0.06)"; el.style.color = "rgba(255,255,255,0.45)"; } }}
                                 >${v}</button>
                             );
                         })}
@@ -190,7 +193,7 @@ export default function TopUpPage() {
                         fontWeight: 700,
                         letterSpacing: "0.11em",
                         textTransform: "uppercase" as const,
-                        color: "rgba(255,255,255,0.16)",
+                        color: "rgba(255,255,255,0.45)",
                         fontFamily: "var(--font-sans,system-ui)",
                         marginBottom: 12,
                     }}>Currency</p>
@@ -250,7 +253,7 @@ export default function TopUpPage() {
                                         <p style={{
                                             fontSize: 11.5,
                                             fontWeight: 700,
-                                            color: on ? "rgba(235,235,235,0.92)" : "rgba(235,235,235,0.55)",
+                                            color: on ? "#FFFFFF" : "rgba(235,235,235,0.6)",
                                             fontFamily: "var(--font-sans,system-ui)",
                                             letterSpacing: "-0.01em",
                                             transition: "color 0.14s",
@@ -305,7 +308,7 @@ export default function TopUpPage() {
                             }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
                                     <Icon icon={selected!.icon} style={{ fontSize: 18, color: selected!.accent }} />
-                                    <span style={{ fontSize: 13, fontWeight: 500, color: "rgba(235,235,235,0.75)", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "-0.01em" }}>
+                                    <span style={{ fontSize: 13, fontWeight: 600, color: "#FFFFFF", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "-0.01em" }}>
                                         Paying <strong>${num.toFixed(2)}</strong> via {selected!.symbol}
                                     </span>
                                 </div>
@@ -324,7 +327,7 @@ export default function TopUpPage() {
                         disabled={createInvoice.isPending}
                         onClick={() => {
                             if (!crypto) { toast("error", "Select a currency"); return; }
-                            if (num < 10) { toast("error", "Minimum deposit is $10"); return; }
+                            if (num < 2) { toast("error", "Minimum deposit is $2"); return; }
                             createInvoice.mutate({ amountUsd: num, crypto });
                         }}
                         style={{
@@ -355,8 +358,8 @@ export default function TopUpPage() {
                             ? <Icon icon="ph:spinner" style={{ fontSize: 16, animation: "spin 1s linear infinite" }} />
                             : ready
                                 ? <><Icon icon="ph:receipt" style={{ fontSize: 15 }} />Generate Invoice</>
-                                : num < 10 && num > 0
-                                    ? "Minimum deposit is $10"
+                                : num < 2 && num > 0
+                                    ? "Minimum deposit is $2"
                                     : "Select an amount & currency"
                         }
                     </button>

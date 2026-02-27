@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 export async function setAuthCookies({
     accessToken,
@@ -8,10 +8,13 @@ export async function setAuthCookies({
     refreshToken: string;
 }) {
     const cookieStore = await cookies();
+    const headersList = await headers();
+    const protocol = headersList.get("x-forwarded-proto") || "http";
+    const isSecure = protocol === "https";
 
     cookieStore.set("access_token", accessToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: isSecure,
         sameSite: "lax",
         path: "/",
         maxAge: 15 * 60,
@@ -19,7 +22,7 @@ export async function setAuthCookies({
 
     cookieStore.set("refresh_token", refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: isSecure,
         sameSite: "lax",
         path: "/",
         maxAge: 7 * 24 * 60 * 60,

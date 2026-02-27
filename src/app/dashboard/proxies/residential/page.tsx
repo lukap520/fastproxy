@@ -34,10 +34,10 @@ function UsageBar({ used, allocated }: { used: number; allocated: number }) {
     return (
         <div>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-sans,system-ui)" }}>
+                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontFamily: "var(--font-sans,system-ui)", fontWeight: 500 }}>
                     {used.toFixed(2)} GB used
                 </span>
-                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-sans,system-ui)" }}>
+                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontFamily: "var(--font-sans,system-ui)", fontWeight: 500 }}>
                     {allocated.toFixed(2)} GB total
                 </span>
             </div>
@@ -50,7 +50,7 @@ function UsageBar({ used, allocated }: { used: number; allocated: number }) {
                 />
             </div>
             <div style={{ marginTop: 5, textAlign: "right" as const }}>
-                <span style={{ fontSize: 10.5, color: "rgba(255,255,255,0.2)", fontFamily: "var(--font-sans,system-ui)" }}>
+                <span style={{ fontSize: 10.5, color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-sans,system-ui)" }}>
                     {(allocated - used).toFixed(2)} GB remaining
                 </span>
             </div>
@@ -80,7 +80,7 @@ function PurchasePanel({ balance, onSuccess }: { balance: number; onSuccess: () 
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
             <div>
-                <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.11em", textTransform: "uppercase" as const, color: "rgba(255,255,255,0.16)", fontFamily: "var(--font-sans,system-ui)", marginBottom: 14 }}>
+                <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.11em", textTransform: "uppercase" as const, color: "rgba(255,255,255,0.9)", fontFamily: "var(--font-sans,system-ui)", marginBottom: 14 }}>
                     How much bandwidth?
                 </p>
 
@@ -89,7 +89,7 @@ function PurchasePanel({ balance, onSuccess }: { balance: number; onSuccess: () 
                         const on = !custom && gb === v;
                         return (
                             <button key={v} type="button" onClick={() => { setCustom(false); setGb(v); }}
-                                style={{ padding: "10px 6px", borderRadius: 10, border: on ? "1px solid rgba(255,107,0,0.4)" : "1px solid rgba(255,255,255,0.06)", background: on ? "rgba(255,107,0,0.08)" : "rgba(255,255,255,0.018)", color: on ? "rgb(255,107,0)" : "rgba(255,255,255,0.4)", fontSize: 12, fontWeight: 700, fontFamily: "var(--font-sans,system-ui)", cursor: "pointer", transition: "all 0.13s", textAlign: "center" as const }}
+                                style={{ padding: "10px 6px", borderRadius: 10, border: on ? "1px solid rgba(255,107,0,0.4)" : "1px solid rgba(255,255,255,0.06)", background: on ? "rgba(255,107,0,0.08)" : "rgba(255,255,255,0.018)", color: on ? "rgb(255,107,0)" : "rgba(255,255,255,0.8)", fontSize: 12, fontWeight: 700, fontFamily: "var(--font-sans,system-ui)", cursor: "pointer", transition: "all 0.13s", textAlign: "center" as const }}
                                 onMouseEnter={(e) => { if (!on) e.currentTarget.style.background = "rgba(255,255,255,0.035)"; }}
                                 onMouseLeave={(e) => { if (!on) e.currentTarget.style.background = "rgba(255,255,255,0.018)"; }}>
                                 {v} GB
@@ -99,8 +99,35 @@ function PurchasePanel({ balance, onSuccess }: { balance: number; onSuccess: () 
                 </div>
 
                 <button type="button" onClick={() => setCustom(true)}
-                    style={{ fontSize: 11.5, color: custom ? "rgba(255,107,0,0.8)" : "rgba(255,255,255,0.25)", fontFamily: "var(--font-sans,system-ui)", background: "none", border: "none", cursor: "pointer", padding: 0, letterSpacing: "-0.01em" }}>
-                    {custom ? "↳ Entering custom amount" : "Enter custom amount →"}
+                    style={{
+                        fontSize: 12,
+                        color: custom ? "rgb(255,107,0)" : "rgba(255,107,0,0.85)",
+                        fontFamily: "var(--font-sans,system-ui)",
+                        background: "rgba(255,107,0,0.05)",
+                        border: custom ? "1px solid rgba(255,107,0,0.4)" : "1px solid rgba(255,107,0,0.15)",
+                        borderRadius: "8px",
+                        cursor: "pointer",
+                        padding: "6px 12px",
+                        letterSpacing: "-0.01em",
+                        fontWeight: 600,
+                        transition: "all 0.2s ease",
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "6px"
+                    }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.background = "rgba(255,107,0,0.08)";
+                        e.currentTarget.style.borderColor = "rgba(255,107,0,0.3)";
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "rgba(255,107,0,0.05)";
+                        e.currentTarget.style.borderColor = custom ? "rgba(255,107,0,0.4)" : "rgba(255,107,0,0.15)";
+                    }}
+                >
+                    <Icon icon={custom ? "ph:pencil-simple-fill" : "ph:plus-bold"} style={{ fontSize: 13 }} />
+                    {custom ? "Editing custom amount" : "Enter custom amount"}
                 </button>
 
                 <AnimatePresence>
@@ -128,17 +155,17 @@ function PurchasePanel({ balance, onSuccess }: { balance: number; onSuccess: () 
 
             <div style={{ padding: "16px 18px", borderRadius: 12, background: "rgba(255,255,255,0.018)", border: "1px solid rgba(255,255,255,0.055)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                    <span style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-sans,system-ui)" }}>Rate</span>
-                    <span style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", fontFamily: "var(--font-sans,system-ui)", fontWeight: 500 }}>${PRICE_PER_GB.toFixed(2)} / GB</span>
+                    <span style={{ fontSize: 12, color: "rgba(255,255,255,1)", fontFamily: "var(--font-sans,system-ui)" }}>Rate</span>
+                    <span style={{ fontSize: 12, color: "rgba(255,255,255,1)", fontFamily: "var(--font-sans,system-ui)", fontWeight: 500 }}>${PRICE_PER_GB.toFixed(2)} / GB</span>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                    <span style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-sans,system-ui)" }}>Bandwidth</span>
-                    <span style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", fontFamily: "var(--font-sans,system-ui)", fontWeight: 500 }}>{activeGb} GB</span>
+                    <span style={{ fontSize: 12, color: "rgba(255,255,255,1)", fontFamily: "var(--font-sans,system-ui)" }}>Bandwidth</span>
+                    <span style={{ fontSize: 12, color: "rgba(255,255,255,1)", fontFamily: "var(--font-sans,system-ui)", fontWeight: 500 }}>{activeGb} GB</span>
                 </div>
-                <div style={{ height: 1, background: "rgba(255,255,255,0.04)", margin: "10px 0" }} />
+                <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "10px 0" }} />
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.5)", fontFamily: "var(--font-sans,system-ui)" }}>Total</span>
-                    <span style={{ fontFamily: "var(--font-heading,system-ui)", fontSize: 20, fontWeight: 700, letterSpacing: "-0.03em", color: valid ? "rgba(235,235,235,0.88)" : "rgba(255,255,255,0.2)" }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.8)", fontFamily: "var(--font-sans,system-ui)" }}>Total</span>
+                    <span style={{ fontFamily: "var(--font-heading,system-ui)", fontSize: 20, fontWeight: 700, letterSpacing: "-0.03em", color: valid ? "#FFFFFF" : "rgba(255,255,255,0.2)" }}>
                         ${totalCost.toFixed(2)}
                     </span>
                 </div>
@@ -151,15 +178,15 @@ function PurchasePanel({ balance, onSuccess }: { balance: number; onSuccess: () 
 
             <button type="button" disabled={buy.isPending || !valid || !canAfford}
                 onClick={() => buy.mutate({ gb: activeGb })}
-                style={{ width: "100%", padding: "14px", borderRadius: 11, border: "none", background: valid && canAfford ? "hsl(24, 100%, 45%)" : "rgba(255,255,255,0.05)", color: valid && canAfford ? "rgba(255,255,255,0.93)" : "rgba(255,255,255,0.18)", fontSize: 13.5, fontWeight: 600, fontFamily: "var(--font-sans,system-ui)", cursor: valid && canAfford && !buy.isPending ? "pointer" : "not-allowed", boxShadow: valid && canAfford ? "0 1px 3px rgba(0,0,0,0.4)" : "none", transition: "background 0.15s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, letterSpacing: "-0.01em" }}
+                style={{ width: "80%", alignSelf: "center", padding: "10px", borderRadius: 11, border: "none", background: valid && canAfford ? "hsl(24, 100%, 45%)" : "rgba(255,255,255,0.05)", color: valid && canAfford ? "rgba(255,255,255,0.93)" : "rgba(255,255,255,0.18)", fontSize: 13.5, fontWeight: 600, fontFamily: "var(--font-sans,system-ui)", cursor: valid && canAfford && !buy.isPending ? "pointer" : "not-allowed", boxShadow: valid && canAfford ? "0 1px 3px rgba(0,0,0,0.4)" : "none", transition: "background 0.15s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, letterSpacing: "-0.01em" }}
                 onMouseEnter={(e) => { if (valid && canAfford && !buy.isPending) e.currentTarget.style.background = "hsl(24, 100%, 39%)"; }}
                 onMouseLeave={(e) => { if (valid && canAfford) e.currentTarget.style.background = "hsl(24, 100%, 45%)"; }}
                 onMouseDown={(e) => { if (valid && canAfford) e.currentTarget.style.transform = "translateY(1px)"; }}
                 onMouseUp={(e) => { e.currentTarget.style.transform = ""; }}
             >
                 {buy.isPending
-                    ? <><Icon icon="ph:spinner" style={{ fontSize: 16, animation: "spin 1s linear infinite" }} />Activating…</>
-                    : <><Icon icon="ph:lightning-fill" style={{ fontSize: 15 }} />Activate {activeGb} GB — ${totalCost.toFixed(2)}</>
+                    ? <><Icon icon="ph:spinner" style={{ fontSize: 16, animation: "spin 1s linear infinite" }} />Processing...</>
+                    : <>Purchase — ${totalCost.toFixed(2)}</>
                 }
             </button>
         </div>
@@ -226,11 +253,176 @@ function CredentialRow({ label, value, mono = false }: { label: string; value: s
     return (
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "11px 14px", borderRadius: 10, background: "rgba(255,255,255,0.016)", border: "1px solid rgba(255,255,255,0.05)" }}>
             <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: "rgba(255,255,255,0.2)", fontFamily: "var(--font-sans,system-ui)", marginBottom: 4 }}>{label}</p>
-                <p style={{ fontSize: 12.5, color: "rgba(235,235,235,0.78)", fontFamily: mono ? "monospace" : "var(--font-sans,system-ui)", letterSpacing: mono ? "0.03em" : "-0.01em", fontWeight: 500, wordBreak: "break-all" }}>{value}</p>
+                <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-sans,system-ui)", marginBottom: 4 }}>{label}</p>
+                <p style={{ fontSize: 12.5, color: "#FFFFFF", fontFamily: mono ? "monospace" : "var(--font-sans,system-ui)", letterSpacing: mono ? "0.03em" : "-0.01em", fontWeight: 600, wordBreak: "break-all" }}>{value}</p>
             </div>
             <CopyButton text={value} />
         </div>
+    );
+}
+
+const COUNTRIES = [
+    { code: "any", name: "Any country" },
+    { code: "US", name: "United States" },
+    { code: "GB", name: "United Kingdom" },
+    { code: "CA", name: "Canada" },
+    { code: "DE", name: "Germany" },
+    { code: "FR", name: "France" },
+    { code: "JP", name: "Japan" },
+    { code: "AU", name: "Australia" },
+    { code: "BR", name: "Brazil" },
+    { code: "IN", name: "India" },
+    { code: "NL", name: "Netherlands" },
+    { code: "ES", name: "Spain" },
+    { code: "IT", name: "Italy" },
+];
+
+const FORMATS = [
+    { id: "user:pass@host:port", label: "user:pass@host:port", sub: "{USER}:{PASS}@{HOST}:{PORT}" },
+    { id: "host:port:user:pass", label: "host:port:user:pass", sub: "{HOST}:{PORT}:{USER}:{PASS}" },
+    { id: "http", label: "http:// URL", sub: "http://{USER}:{PASS}@{HOST}:{PORT}" },
+    { id: "socks5", label: "socks5:// URL", sub: "socks5://{USER}:{PASS}@{HOST}:{PORT}" },
+    { id: "user:pass", label: "user:pass only", sub: "{USER}:{PASS}" },
+    { id: "host:port", label: "host:port only", sub: "{HOST}:{PORT}" },
+];
+
+function ProxyGenerator({ proxy, proxyHost }: { proxy: { username: string; password: string }; proxyHost: string }) {
+    const [proxyType, setProxyType] = useState<"rotating" | "sticky">("rotating");
+    const [country, setCountry] = useState<string>("any");
+    const [quantity, setQuantity] = useState<number>(10);
+    const [format, setFormat] = useState<string>("user:pass@host:port");
+    const [copied, setCopied] = useState(false);
+
+    const generateProxies = () => {
+        const list: string[] = [];
+        const [host, port] = proxyHost.split(":");
+        const pass = proxy.password;
+
+        for (let i = 0; i < quantity; i++) {
+            let user = proxy.username;
+            if (country !== "any") {
+                user += `-country-${country}`;
+            }
+            if (proxyType === "sticky") {
+                const session = Math.random().toString(36).substring(2, 10);
+                user += `-session-${session}-ttl-3600`;
+            }
+
+            let line = "";
+            switch (format) {
+                case "user:pass@host:port": line = `${user}:${pass}@${host}:${port}`; break;
+                case "host:port:user:pass": line = `${host}:${port}:${user}:${pass}`; break;
+                case "http": line = `http://${user}:${pass}@${host}:${port}`; break;
+                case "socks5": line = `socks5://${user}:${pass}@${host}:${port}`; break;
+                case "user:pass": line = `${user}:${pass}`; break;
+                case "host:port": line = `${host}:${port}`; break;
+                default: line = `${user}:${pass}@${host}:${port}`;
+            }
+            list.push(line);
+        }
+        return list.join("\n");
+    };
+
+    const output = generateProxies();
+
+    const copyAll = () => {
+        navigator.clipboard.writeText(output).then(() => {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        });
+    };
+
+    const downloadTxt = () => {
+        const blob = new Blob([output], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `proxies-${proxyType}-${country}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    return (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}
+            style={{ borderRadius: 16, background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.055)", overflow: "hidden" }}>
+            <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: "rgba(235,235,235,0.88)", fontFamily: "var(--font-heading,system-ui)", letterSpacing: "-0.01em" }}>Generator Settings</span>
+                <p style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", marginTop: 2, fontFamily: "var(--font-sans,system-ui)" }}>Configure how your proxy list is generated.</p>
+            </div>
+
+            <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: 24 }}>
+                <div>
+                    <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.7)", marginBottom: 8, fontFamily: "var(--font-sans,system-ui)" }}>Proxy Type</label>
+                    <div style={{ display: "flex", background: "rgba(255,255,255,0.03)", borderRadius: 10, padding: 4 }}>
+                        <button type="button" onClick={() => setProxyType("rotating")}
+                            style={{ flex: 1, padding: "8px", borderRadius: 8, border: "none", background: proxyType === "rotating" ? "rgba(255,255,255,0.08)" : "transparent", color: proxyType === "rotating" ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.4)", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, cursor: "pointer", transition: "all 0.2s" }}>
+                            <Icon icon="ph:arrows-clockwise" /> Rotating
+                        </button>
+                        <button type="button" onClick={() => setProxyType("sticky")}
+                            style={{ flex: 1, padding: "8px", borderRadius: 8, border: "none", background: proxyType === "sticky" ? "rgba(255,255,255,0.08)" : "transparent", color: proxyType === "sticky" ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.4)", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, cursor: "pointer", transition: "all 0.2s" }}>
+                            <Icon icon="ph:lock-key" /> Sticky / Static
+                        </button>
+                    </div>
+                    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", marginTop: 8, fontFamily: "var(--font-sans,system-ui)" }}>
+                        {proxyType === "rotating" ? "Each request gets a different IP address. Best for scraping, data collection, and avoiding rate limits." : "Keeps the same IP address for up to 60 minutes. Best for account management and sessions."}
+                    </p>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                    <div>
+                        <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.7)", marginBottom: 8, fontFamily: "var(--font-sans,system-ui)" }}>Country</label>
+                        <select
+                            value={country}
+                            onChange={(e) => setCountry(e.target.value)}
+                            style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)", color: "rgba(255,255,255,0.8)", fontSize: 13, outline: "none", cursor: "pointer", appearance: "none", WebkitAppearance: "none" }}
+                        >
+                            {COUNTRIES.map(c => (
+                                <option key={c.code} value={c.code} style={{ background: "#0a0a0a" }}>{c.name}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.7)", marginBottom: 8, fontFamily: "var(--font-sans,system-ui)" }}>Quantity</label>
+                        <input
+                            type="number"
+                            min="1"
+                            max="10000"
+                            value={quantity}
+                            onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
+                            style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)", color: "rgba(255,255,255,0.8)", fontSize: 13, outline: "none" }}
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.7)", marginBottom: 8, fontFamily: "var(--font-sans,system-ui)" }}>Output Format</label>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 8 }}>
+                        {FORMATS.map(f => {
+                            const on = format === f.id;
+                            return (
+                                <button key={f.id} type="button" onClick={() => setFormat(f.id)}
+                                    style={{ padding: "10px", borderRadius: 8, border: on ? "1px solid rgba(255,107,0,0.4)" : "1px solid rgba(255,255,255,0.05)", background: on ? "rgba(255,107,0,0.08)" : "rgba(255,255,255,0.02)", textAlign: "left", cursor: "pointer", transition: "all 0.2s" }}
+                                >
+                                    <div style={{ fontSize: 12, fontWeight: 500, color: on ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.6)", marginBottom: 2 }}>{f.label}</div>
+                                    <div style={{ fontSize: 10, color: on ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.3)" }}>{f.sub}</div>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                <div style={{ position: "relative" }}>
+                    <textarea
+                        readOnly
+                        value={output}
+                        style={{ width: "100%", height: 160, padding: "14px 14px 14px 14px", paddingTop: 4, borderRadius: 10, border: "1px solid rgba(255,255,255,0.05)", background: "#0a0a0a", color: "rgba(255,255,255,0.7)", fontSize: 12, fontFamily: "monospace", resize: "none", outline: "none", whiteSpace: "pre-wrap", wordBreak: "break-all" }}
+                    />
+                </div>
+
+            </div>
+        </motion.div>
     );
 }
 
@@ -251,20 +443,20 @@ export default function ResidentialGBPage() {
         </div>
     );
 
-    const proxyHost = "resi.maskify.su:80";
+    const proxyHost = "resi.fastproxy.to:80";
 
     return (
         <div style={{ flex: 1, padding: isSmall ? "80px 20px 40px" : "52px 56px", maxWidth: 1060, width: "100%", margin: "0 auto" }}>
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.32 }} style={{ marginBottom: 44 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
                     <div style={{ width: 24, height: 1, background: "rgba(255,107,0,0.5)" }} />
-                    <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "rgba(255,107,0,0.6)", fontFamily: "var(--font-sans,system-ui)" }}>Residential</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: "rgba(255,107,0,0.9)", fontFamily: "var(--font-sans,system-ui)", textShadow: "0 1px 2px rgba(0,0,0,0.2)" }}>Residential</span>
                 </div>
-                <h1 style={{ fontFamily: "var(--font-heading,system-ui)", fontSize: "2rem", fontWeight: 700, color: "rgba(235,235,235,0.95)", letterSpacing: "-0.04em", lineHeight: 1.1, marginBottom: 6 }}>
+                <h1 style={{ fontFamily: "var(--font-heading,system-ui)", fontSize: "2rem", fontWeight: 700, color: "#FFFFFF", letterSpacing: "-0.04em", lineHeight: 1.1, marginBottom: 6, textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}>
                     Residential GB Proxies
                 </h1>
-                <p style={{ fontSize: 13, color: "rgba(255,255,255,0.24)", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "-0.01em" }}>
-                    Pay-as-you-go. <span style={{ color: "rgba(255,255,255,0.45)", fontWeight: 500 }}>${PRICE_PER_GB.toFixed(2)} / GB</span> · 150M+ IPs · 195 countries · HTTP/SOCKS5
+                <p style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "-0.01em", textShadow: "0 1px 2px rgba(0,0,0,0.2)" }}>
+                    Pay-as-you-go. <span style={{ color: "#FFFFFF", fontWeight: 600 }}>${PRICE_PER_GB.toFixed(2)} / GB</span> · 15M+ IPs · 195 countries · HTTP/SOCKS5
                 </p>
             </motion.div>
 
@@ -276,7 +468,7 @@ export default function ResidentialGBPage() {
                             <div style={{ position: "relative", padding: "18px 20px", borderBottom: "1px solid rgba(255,255,255,0.04)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                                     <div style={{ width: 8, height: 8, borderRadius: "50%", background: "rgb(52,211,153)", boxShadow: "0 0 8px rgba(52,211,153,0.6)" }} />
-                                    <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(235,235,235,0.82)", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "-0.01em" }}>Active Proxy</span>
+                                    <span style={{ fontSize: 13, fontWeight: 700, color: "#FFFFFF", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "-0.01em", textShadow: "0 1px 2px rgba(0,0,0,0.2)" }}>Active Proxy</span>
                                 </div>
                                 <span style={{ fontSize: 10, padding: "2px 9px", borderRadius: 6, background: "rgba(52,211,153,0.08)", border: "1px solid rgba(52,211,153,0.18)", color: "rgba(52,211,153,0.8)", fontWeight: 600, fontFamily: "var(--font-sans,system-ui)", letterSpacing: "0.03em" }}>ONLINE</span>
                             </div>
@@ -288,7 +480,7 @@ export default function ResidentialGBPage() {
                         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
                             style={{ borderRadius: 16, background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.055)", overflow: "hidden" }}>
                             <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                                <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(235,235,235,0.8)", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "-0.01em" }}>Credentials</span>
+                                <span style={{ fontSize: 13.5, fontWeight: 700, color: "#FFFFFF", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "-0.01em", textShadow: "0 1px 2px rgba(0,0,0,0.2)" }}>Credentials</span>
                             </div>
                             <div style={{ padding: "16px 20px", display: "flex", flexDirection: "column", gap: 8 }}>
                                 <CredentialRow label="Username" value={proxy.username} mono />
@@ -298,19 +490,13 @@ export default function ResidentialGBPage() {
                             </div>
                         </motion.div>
 
-                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.14 }}
-                            style={{ padding: "14px 18px", borderRadius: 13, background: "rgba(255,107,0,0.04)", border: "1px solid rgba(255,107,0,0.1)", display: "flex", gap: 10 }}>
-                            <Icon icon="ph:info" style={{ fontSize: 15, color: "rgba(255,107,0,0.55)", flexShrink: 0, marginTop: 1 }} />
-                            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-sans,system-ui)", lineHeight: 1.6 }}>
-                                Proxies are authenticated by username and password. Configure with HTTP or SOCKS5. Session rotation is automatic on each new connection. For sticky sessions, append <code style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", background: "rgba(255,255,255,0.06)", padding: "1px 5px", borderRadius: 4 }}>-session-[id]</code> to your username.
-                            </p>
-                        </motion.div>
+                        <ProxyGenerator proxy={{ username: proxy.username, password: proxy.password }} proxyHost={proxyHost} />
                     </div>
 
                     <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.08 }}
                         style={{ borderRadius: 16, background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.055)", overflow: "hidden", position: "sticky", top: 24 }}>
                         <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                            <p style={{ fontSize: 13, fontWeight: 600, color: "rgba(235,235,235,0.8)", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "-0.01em" }}>Top Up</p>
+                            <p style={{ fontSize: 13.5, fontWeight: 700, color: "#FFFFFF", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "-0.01em", textShadow: "0 1px 2px rgba(0,0,0,0.2)" }}>Top Up</p>
                             <p style={{ fontSize: 11, color: "rgba(255,255,255,0.22)", marginTop: 2, fontFamily: "var(--font-sans,system-ui)" }}>Balance: ${user.balance.toFixed(2)}</p>
                         </div>
                         <div style={{ padding: "16px 20px" }}>
@@ -322,12 +508,12 @@ export default function ResidentialGBPage() {
                 <div style={{ display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 440px", gap: 20, alignItems: "start" }}>
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.06 }}>
                         <div style={{ marginBottom: 24 }}>
-                            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.11em", textTransform: "uppercase" as const, color: "rgba(255,255,255,0.16)", fontFamily: "var(--font-sans,system-ui)", marginBottom: 14 }}>
+                            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.11em", textTransform: "uppercase" as const, color: "rgba(255,255,255,0.6)", fontFamily: "var(--font-sans,system-ui)", marginBottom: 14 }}>
                                 Why residential?
                             </p>
                             {[
                                 { icon: "ph:shield-check", label: "Real residential IPs", sub: "Sourced from real devices, not data centers. Near-zero detection rate." },
-                                { icon: "ph:globe-hemisphere-west", label: "150M+ IP pool", sub: "Rotate across 195+ countries. City and state-level targeting available." },
+                                { icon: "ph:globe-hemisphere-west", label: "15M+ IP pool", sub: "Rotate across 195+ countries. City and state-level targeting available." },
                                 { icon: "ph:arrows-clockwise", label: "Rotating & sticky", sub: "New IP per request or maintain a sticky session for up to 24 hours." },
                                 { icon: "ph:lightning-fill", label: "HTTP & SOCKS5", sub: "Supports both protocols. Use with any scraping tool or browser." },
                             ].map((f, i) => (
@@ -337,8 +523,8 @@ export default function ResidentialGBPage() {
                                         <Icon icon={f.icon} style={{ fontSize: 16, color: "rgba(255,107,0,0.65)" }} />
                                     </div>
                                     <div>
-                                        <p style={{ fontSize: 13, fontWeight: 600, color: "rgba(235,235,235,0.78)", fontFamily: "var(--font-sans,system-ui)", marginBottom: 3, letterSpacing: "-0.01em" }}>{f.label}</p>
-                                        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.22)", fontFamily: "var(--font-sans,system-ui)", lineHeight: 1.55 }}>{f.sub}</p>
+                                        <p style={{ fontSize: 13, fontWeight: 600, color: "rgba(235,235,235,1)", fontFamily: "var(--font-sans,system-ui)", marginBottom: 3, letterSpacing: "-0.01em" }}>{f.label}</p>
+                                        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", fontFamily: "var(--font-sans,system-ui)", lineHeight: 1.55 }}>{f.sub}</p>
                                     </div>
                                 </motion.div>
                             ))}

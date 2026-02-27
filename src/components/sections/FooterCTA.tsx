@@ -18,17 +18,14 @@ const products = [
 ];
 
 const resources = [
-  { icon: "mdi:file-document-outline", label: "Documentation", href: "#" },
-  { icon: "mdi:code-tags", label: "API Reference", href: "#" },
-  { icon: "mdi:pulse", label: "Status Page", href: "#" },
-  { icon: "mdi:notebook-outline", label: "Blog", href: "#" },
+  { icon: "mdi:view-dashboard-outline", label: "Dashboard", href: "/dashboard" },
+  { icon: "mdi:login", label: "Login", href: "/login" },
+  { icon: "mdi:account-plus-outline", label: "Register", href: "/register" },
 ];
 
 const company = [
-  { icon: "mdi:information-outline", label: "About", href: "#" },
-  { icon: "mdi:account-group-outline", label: "Careers", href: "#" },
-  { icon: "mdi:email-outline", label: "Contact", href: "#" },
-  { icon: "mdi:tag-outline", label: "Pricing", href: "#" },
+  { icon: "mdi:tag-outline", label: "Pricing", href: "/#products" },
+  { icon: "mdi:email-outline", label: "Contact", href: "mailto:support@fastproxy.com" },
 ];
 
 export default function FooterCTA() {
@@ -48,14 +45,14 @@ export default function FooterCTA() {
           <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex-1">
               <h2 className="font-heading text-[1.6rem] tracking-tighter leading-[1.1] sm:text-[2.2rem]">
-                <span className="font-extralight text-foreground/50">Ready to </span>
-                <span className="font-bold text-foreground">ship faster?</span>
+                <span className="font-extralight text-white drop-shadow-sm">Ready to </span>
+                <span className="font-bold text-white drop-shadow-sm">scale your operations?</span>
               </h2>
               <div className="mt-3 flex flex-wrap items-center gap-5">
                 {perks.map((perk) => (
                   <div key={perk.label} className="flex items-center gap-1.5">
-                    <Icon icon={perk.icon} className="text-xs text-accent/45" />
-                    <span className="text-[11px] text-muted/45">{perk.label}</span>
+                    <Icon icon={perk.icon} className="text-[13px] text-accent drop-shadow-sm" />
+                    <span className="text-[12px] font-medium text-gray-200">{perk.label}</span>
                   </div>
                 ))}
               </div>
@@ -66,12 +63,11 @@ export default function FooterCTA() {
                 href="/register"
                 className="shimmer-btn inline-flex items-center gap-2 rounded-full bg-accent px-7 py-3 text-[13px] font-semibold text-white transition-colors duration-200 hover:bg-accent-hover shadow-[0_0_28px_rgba(255,107,0,0.2)]"
               >
-                <Icon icon="mdi:flash" className="text-sm" />
-                Start Building Free
+                Get Started
               </Link>
               <a
                 href="#"
-                className="group inline-flex items-center gap-1.5 rounded-full border border-white/[0.07] px-5 py-3 text-[13px] font-medium text-muted/55 transition-all duration-200 hover:border-white/[0.12] hover:text-foreground"
+                className="group inline-flex items-center gap-1.5 rounded-full border border-white/[0.1] px-5 py-3 text-[13px] font-semibold text-white transition-all duration-200 hover:border-white/[0.2] hover:bg-white/[0.05]"
               >
                 Pricing
                 <Icon
@@ -90,29 +86,27 @@ export default function FooterCTA() {
             <div className="flex flex-col gap-4">
               <Link
                 href="/"
-                className="flex items-center gap-1.5 w-fit"
+                className="flex items-center gap-1.5 w-fit group"
               >
-                <div className="flex h-5 w-5 items-center justify-center rounded-md bg-accent/10">
-                  <Icon icon="mdi:flash" className="text-[10px] text-accent" />
+                <div className="flex h-5 w-5 items-center justify-center rounded-md bg-accent/20 ring-1 ring-accent/10 group-hover:ring-accent/40 transition-all duration-300">
+                  <Icon icon="ph:lightning" className="text-[10px] text-accent drop-shadow-sm" />
                 </div>
-                <span className="font-heading text-sm font-semibold tracking-tight text-foreground">
+                <span className="font-heading text-[15px] font-bold tracking-tight text-white drop-shadow-sm">
                   FastProxy
                 </span>
               </Link>
-              <p className="text-[12px] leading-relaxed text-muted/40">
+              <p className="text-[13px] font-medium leading-relaxed text-gray-200">
                 Enterprise-grade proxy infrastructure for the modern web.
               </p>
               <div className="flex items-center gap-2">
                 {[
-                  { icon: "mdi:twitter", href: "#" },
-                  { icon: "mdi:github", href: "#" },
-                  { icon: "mdi:linkedin", href: "#" },
+                  { icon: "mdi:telegram", href: "#" },
                   { icon: "mdi:discord", href: "#" },
                 ].map((s) => (
                   <a
                     key={s.icon}
                     href={s.href}
-                    className="flex h-7 w-7 items-center justify-center rounded-full border border-white/[0.05] bg-white/[0.015] text-muted/30 transition-all duration-200 hover:border-accent/15 hover:text-foreground hover:bg-white/[0.025]"
+                    className="flex h-7 w-7 items-center justify-center rounded-full border border-white/[0.05] bg-white/[0.015] text-muted/60 transition-all duration-200 hover:border-accent/30 hover:text-foreground hover:bg-white/[0.05]"
                   >
                     <Icon icon={s.icon} className="text-xs" />
                   </a>
@@ -126,22 +120,22 @@ export default function FooterCTA() {
               { title: "Company", items: company },
             ].map((col) => (
               <div key={col.title}>
-                <h4 className="font-heading mb-4 text-[10px] font-semibold tracking-widest text-foreground/25 uppercase">
+                <h4 className="font-heading mb-4 text-[11px] font-bold tracking-widest text-gray-400 uppercase">
                   {col.title}
                 </h4>
                 <ul className="flex flex-col gap-2.5">
                   {col.items.map((item) => (
                     <li key={item.label}>
-                      <a
+                      <Link
                         href={item.href}
-                        className="group flex items-center gap-2 text-[12px] text-muted/40 transition-all duration-200 hover:text-foreground hover:translate-x-0.5"
+                        className="group flex items-center gap-2 text-[13px] font-medium text-gray-200 transition-all duration-200 hover:text-white hover:translate-x-0.5"
                       >
                         <Icon
                           icon={item.icon}
-                          className="text-xs text-muted/20 transition-colors duration-200 group-hover:text-accent/50"
+                          className="text-xs text-gray-400 transition-colors duration-200 group-hover:text-accent drop-shadow-sm"
                         />
                         {item.label}
-                      </a>
+                      </Link>
                     </li>
                   ))}
                 </ul>
@@ -152,7 +146,7 @@ export default function FooterCTA() {
           <div className="mt-8 h-px bg-gradient-to-r from-transparent via-white/[0.05] to-transparent" />
 
           <div className="mt-6 flex flex-col items-center justify-between gap-2 text-center sm:flex-row sm:text-left">
-            <p className="text-[11px] text-muted/20">
+            <p className="text-[12px] font-medium text-gray-400">
               &copy; {new Date().getFullYear()} FastProxy Inc. All rights reserved.
             </p>
             <div className="flex items-center gap-4">
@@ -164,7 +158,7 @@ export default function FooterCTA() {
                 <a
                   key={item.label}
                   href="#"
-                  className="flex items-center gap-1 text-[11px] text-muted/20 transition-colors duration-200 hover:text-foreground/60"
+                  className="flex items-center gap-1 text-[12px] font-medium text-gray-400 transition-colors duration-200 hover:text-white"
                 >
                   <Icon icon={item.icon} className="text-[10px]" />
                   {item.label}

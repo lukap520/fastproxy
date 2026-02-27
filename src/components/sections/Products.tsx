@@ -11,7 +11,7 @@ const products = [
     icon: "mdi:home-city-outline",
     name: "Residential Proxies",
     short: "Residential",
-    price: "$3.5/GB",
+    price: "$1.00/GB",
     tagline: "Guaranteed High Speeds",
     description:
       "Ethically sourced residential IPs with guaranteed high performance across all major regions.",
@@ -105,10 +105,10 @@ export default function Products() {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="mb-10 text-center"
       >
-        <span className="text-[11px] font-semibold tracking-widest text-accent/60 uppercase">Products</span>
-        <h2 className="mt-3 font-heading text-2xl tracking-tighter text-foreground sm:text-3xl lg:text-4xl">
-          <span className="font-extralight text-foreground/55">Proxy products to power</span>{" "}
-          <span className="font-bold">your projects</span>
+        <span className="text-[12px] font-bold tracking-widest text-accent uppercase drop-shadow-sm">Products</span>
+        <h2 className="mt-3 font-heading text-2xl tracking-tighter text-white sm:text-3xl lg:text-4xl">
+          <span className="font-extralight text-white drop-shadow-sm">Proxy products to power</span>{" "}
+          <span className="font-bold drop-shadow-sm">your projects</span>
         </h2>
       </motion.div>
 
@@ -126,8 +126,8 @@ export default function Products() {
                 key={p.id}
                 onClick={() => setActive(i)}
                 className={`relative flex flex-col items-center gap-2 py-5 sm:py-6 transition-all duration-300 ${active === i
-                  ? "text-foreground"
-                  : "text-muted/35 hover:text-muted/60 hover:bg-white/[0.015]"
+                  ? "text-white"
+                  : "text-gray-300 hover:text-white hover:bg-white/[0.04]"
                   }`}
               >
                 <div
@@ -138,15 +138,15 @@ export default function Products() {
                 >
                   <Icon
                     icon={p.icon}
-                    className={`text-xl transition-colors duration-300 ${active === i ? "text-accent" : "text-muted/25"
+                    className={`text-xl transition-colors duration-300 ${active === i ? "text-accent" : "text-muted/50"
                       }`}
                   />
                 </div>
 
                 <div className="flex flex-col items-center gap-0.5">
-                  <span className="text-[12px] sm:text-[13px] font-medium tracking-tight">{p.short}</span>
+                  <span className="text-[13px] sm:text-[14px] font-semibold tracking-tight">{p.short}</span>
                   <span
-                    className={`text-[10px] sm:text-[11px] transition-colors duration-300 ${active === i ? "text-muted/45" : "text-muted/20"
+                    className={`text-[11px] sm:text-[12px] font-medium transition-colors duration-300 ${active === i ? "text-gray-200" : "text-gray-400"
                       }`}
                   >
                     from {p.price}
@@ -173,32 +173,32 @@ export default function Products() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -6 }}
           transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-          className="rounded-2xl border border-white/[0.05] bg-white/[0.012] overflow-hidden"
+          className="rounded-2xl border border-white/[0.1] bg-white/[0.03] overflow-hidden shadow-[0_0_30px_rgba(255,255,255,0.03)]"
         >
           <div className="grid gap-0 lg:grid-cols-2">
             <div className="flex flex-col justify-center px-6 py-8 sm:px-10 sm:py-10">
-              <div className="mb-4 inline-flex w-fit items-center gap-1.5 rounded-full border border-accent/15 bg-accent/[0.05] px-3 py-1">
-                <Icon icon="mdi:flash" className="text-[10px] text-accent" />
-                <span className="text-[10px] font-semibold tracking-wide text-accent/80 uppercase">
+              <div className="mb-4 inline-flex w-fit items-center gap-1.5 rounded-full border border-accent/30 bg-accent/[0.1] px-3 py-1">
+                <Icon icon="mdi:flash" className="text-[11px] text-accent drop-shadow-sm" />
+                <span className="text-[11px] font-bold tracking-wide text-accent uppercase drop-shadow-sm">
                   {product.tagline}
                 </span>
               </div>
 
-              <h3 className="font-heading text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+              <h3 className="font-heading text-xl font-bold tracking-tight text-white drop-shadow-sm sm:text-2xl">
                 {product.name}
               </h3>
 
-              <p className="mt-2 max-w-md text-[13px] leading-[1.75] text-muted/55">
+              <p className="mt-2 max-w-md text-[14px] font-medium leading-[1.75] text-gray-200">
                 {product.description}
               </p>
 
               <div className="mt-5 flex flex-col gap-3">
                 {product.features.map((f) => (
                   <div key={f.text} className="flex items-start gap-3">
-                    <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-accent/10 bg-accent/[0.05]">
-                      <Icon icon={f.icon} className="text-[10px] text-accent/60" />
+                    <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-accent/20 bg-accent/[0.1]">
+                      <Icon icon={f.icon} className="text-[11px] text-accent drop-shadow-sm" />
                     </div>
-                    <span className="text-[12px] leading-[1.65] text-muted/60">{f.text}</span>
+                    <span className="text-[13px] font-medium leading-[1.65] text-white/90">{f.text}</span>
                   </div>
                 ))}
               </div>
@@ -229,16 +229,16 @@ export default function Products() {
                       <div className="h-2.5 w-2.5 rounded-full bg-emerald-400/20" />
                     </div>
                     <div className="ml-2 flex items-center gap-2 flex-1">
-                      <div className="flex h-5 w-5 items-center justify-center rounded-md bg-accent/10">
-                        <Icon icon={product.icon} className="text-[10px] text-accent" />
+                      <div className="flex h-5 w-5 items-center justify-center rounded-md bg-accent/20">
+                        <Icon icon={product.icon} className="text-[11px] text-accent drop-shadow-sm" />
                       </div>
-                      <span className="text-[10px] font-medium text-foreground/50">{product.short} Dashboard</span>
+                      <span className="text-[11px] font-semibold text-white">{product.short} Dashboard</span>
                     </div>
                   </div>
 
                   <div className="p-5">
-                    <div className="mb-4 flex items-center justify-between rounded-lg border border-emerald-500/10 bg-emerald-500/[0.04] px-3.5 py-2.5">
-                      <span className="text-[10px] text-muted/40">Status</span>
+                    <div className="mb-4 flex items-center justify-between rounded-lg border border-emerald-500/20 bg-emerald-500/[0.08] px-3.5 py-2.5">
+                      <span className="text-[11px] font-medium text-gray-200">Status</span>
                       <div className="flex items-center gap-1.5">
                         <span className="relative flex h-1.5 w-1.5">
                           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
@@ -250,22 +250,22 @@ export default function Products() {
 
                     <div className="mb-4 space-y-2">
                       {product.mockRows.map((row) => (
-                        <div key={row.label} className="flex items-center justify-between rounded-lg bg-white/[0.025] px-3 py-2">
+                        <div key={row.label} className="flex items-center justify-between rounded-lg bg-white/[0.05] px-3 py-2 border border-white/[0.02]">
                           <div className="flex items-center gap-2">
-                            <div className="flex h-5 w-5 items-center justify-center rounded-md bg-white/[0.05]">
-                              <Icon icon={row.icon} className="text-[9px] text-accent/50" />
+                            <div className="flex h-5 w-5 items-center justify-center rounded-md bg-white/[0.1]">
+                              <Icon icon={row.icon} className="text-[10px] text-accent drop-shadow-sm" />
                             </div>
-                            <span className="text-[11px] text-muted/45">{row.label}</span>
+                            <span className="text-[12px] font-medium text-gray-200">{row.label}</span>
                           </div>
-                          <span className="text-[11px] font-medium text-foreground/65">{row.value}</span>
+                          <span className="text-[12px] font-bold text-white drop-shadow-sm">{row.value}</span>
                         </div>
                       ))}
                     </div>
 
-                    <div className="rounded-lg border border-accent/10 bg-gradient-to-br from-accent/[0.08] to-accent/[0.02] px-4 py-3">
+                    <div className="rounded-lg border border-accent/20 bg-gradient-to-br from-accent/[0.15] to-accent/[0.05] px-4 py-3 shadow-[0_0_15px_rgba(255,107,0,0.1)]">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] text-muted/40">{product.stat.label}</span>
-                        <span className="font-heading text-xl font-bold text-accent/90">{product.stat.value}</span>
+                        <span className="text-[11px] font-medium text-white/90">{product.stat.label}</span>
+                        <span className="font-heading text-xl font-bold text-accent drop-shadow-sm">{product.stat.value}</span>
                       </div>
                     </div>
                   </div>

@@ -37,9 +37,12 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
 
                     if (user) {
                         const newAccessToken = await signAccessToken({ userId: user.id });
+                        const protocol = opts.headers.get("x-forwarded-proto") || "http";
+                        const isSecure = protocol === "https";
+
                         cookieStore.set("access_token", newAccessToken, {
                             httpOnly: true,
-                            secure: process.env.NODE_ENV === "production",
+                            secure: isSecure,
                             sameSite: "lax",
                             path: "/",
                             maxAge: 15 * 60,

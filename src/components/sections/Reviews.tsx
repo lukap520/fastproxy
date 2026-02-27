@@ -59,7 +59,7 @@ function ReviewCard({ review }: { review: (typeof reviews)[0] }) {
           </div>
         </div>
 
-        <p className="font-heading text-[14px] font-medium leading-[1.65] tracking-tight text-foreground/75">
+        <p className="font-heading text-[15px] font-semibold leading-[1.65] tracking-tight text-white drop-shadow-sm">
           &ldquo;{review.text}&rdquo;
         </p>
       </div>
@@ -69,8 +69,8 @@ function ReviewCard({ review }: { review: (typeof reviews)[0] }) {
           {initials}
         </div>
         <div>
-          <p className="text-[12px] font-medium text-foreground/75">{review.name}</p>
-          <p className="text-[10px] text-muted/35">{review.role}</p>
+          <p className="text-[13px] font-bold text-white">{review.name}</p>
+          <p className="text-[11px] font-medium text-gray-300">{review.role}</p>
         </div>
       </div>
     </div>
@@ -93,11 +93,11 @@ export default function Reviews() {
           <div className="flex items-end gap-4">
             <span className="font-heading text-[4rem] leading-none font-bold text-accent/[0.07] sm:text-[5rem] select-none hidden sm:block">&ldquo;</span>
             <div>
-              <h2 className="font-heading text-2xl tracking-tighter text-foreground sm:text-3xl lg:text-4xl">
-                <span className="font-extralight text-foreground/55">Trusted by</span>{" "}
+              <h2 className="font-heading text-2xl tracking-tighter text-white sm:text-3xl lg:text-4xl drop-shadow-sm">
+                <span className="font-extralight text-white drop-shadow-sm">Trusted by</span>{" "}
                 <span className="font-bold">engineers</span>
               </h2>
-              <p className="mt-1 text-[13px] text-muted/40">
+              <p className="mt-1 text-[13px] font-medium text-gray-200">
                 Teams shipping at scale, on FastProxy infrastructure.
               </p>
             </div>
@@ -110,11 +110,11 @@ export default function Reviews() {
                 <span className="font-heading text-sm font-bold text-foreground">4.9</span>
                 <div className="flex gap-0.5">
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <Icon key={i} icon="mdi:star" className="text-[10px] text-accent/75" />
+                    <Icon key={i} icon="mdi:star" className="text-[11px] text-accent drop-shadow-sm" />
                   ))}
                 </div>
               </div>
-              <span className="text-[10px] text-muted/35">2,400+ reviews on Trustpilot</span>
+              <span className="text-[11px] font-medium text-gray-300">2,400+ reviews on Trustpilot</span>
             </div>
           </div>
         </motion.div>

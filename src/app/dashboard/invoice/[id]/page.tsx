@@ -131,7 +131,7 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
                                 <div style={{ height: 1, width: 24, background: "rgba(255,107,0,0.5)" }} />
                                 <span style={{ fontSize: 10.5, fontWeight: 600, color: "rgba(255,107,0,0.7)", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "0.09em", textTransform: "uppercase" as const }}>Invoice</span>
                             </div>
-                            <h1 style={{ fontFamily: "var(--font-heading,system-ui)", fontSize: "1.7rem", fontWeight: 700, color: "rgba(235,235,235,0.95)", letterSpacing: "-0.03em" }}>
+                            <h1 style={{ fontFamily: "var(--font-heading,system-ui)", fontSize: "1.7rem", fontWeight: 700, color: "#FFFFFF", letterSpacing: "-0.03em", textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}>
                                 Pay ${invoice.amountUsd.toFixed(2)} USD
                             </h1>
                             <p style={{ marginTop: 4, fontSize: 12, color: "rgba(255,255,255,0.2)", fontFamily: "monospace" }}>
@@ -160,20 +160,20 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
                             <div style={{ padding: "20px 22px", borderBottom: "1px solid rgba(255,255,255,0.04)", display: "flex", alignItems: "center", gap: 14 }}>
                                 <Icon icon={meta.icon} style={{ fontSize: 36, flexShrink: 0 }} />
                                 <div>
-                                    <p style={{ fontSize: 14, fontWeight: 700, color: "rgba(235,235,235,0.9)", fontFamily: "var(--font-heading,system-ui)", letterSpacing: "-0.02em" }}>Pay with {meta.name}</p>
-                                    <p style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-sans,system-ui)", marginTop: 1 }}>Send exactly the amount shown below</p>
+                                    <p style={{ fontSize: 14, fontWeight: 700, color: "#FFFFFF", fontFamily: "var(--font-heading,system-ui)", letterSpacing: "-0.02em" }}>Pay with {meta.name}</p>
+                                    <p style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", fontFamily: "var(--font-sans,system-ui)", marginTop: 1 }}>Send exactly the amount shown below</p>
                                 </div>
                                 <div style={{ marginLeft: "auto", textAlign: "right" as const }}>
-                                    <p style={{ fontSize: 22, fontWeight: 700, fontFamily: "var(--font-heading,system-ui)", letterSpacing: "-0.02em", color: "rgba(235,235,235,0.95)" }}>
+                                    <p style={{ fontSize: 22, fontWeight: 700, fontFamily: "var(--font-heading,system-ui)", letterSpacing: "-0.02em", color: "#FFFFFF" }}>
                                         {invoice.cryptoAmount.toFixed(8).replace(/\.?0+$/, "").replace(/(\.\d{4})\d+/, "$1")} {meta.symbol}
                                     </p>
-                                    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", fontFamily: "var(--font-sans,system-ui)", marginTop: 3 }}>≈ ${invoice.amountUsd.toFixed(2)} USD</p>
+                                    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-sans,system-ui)", marginTop: 3 }}>≈ ${invoice.amountUsd.toFixed(2)} USD</p>
                                 </div>
                             </div>
 
                             <div style={{ padding: "18px 22px", display: "flex", flexDirection: "column", gap: 14 }}>
                                 <div>
-                                    <p style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.25)", letterSpacing: "0.09em", textTransform: "uppercase" as const, fontFamily: "var(--font-sans,system-ui)", marginBottom: 8 }}>
+                                    <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.45)", letterSpacing: "0.09em", textTransform: "uppercase" as const, fontFamily: "var(--font-sans,system-ui)", marginBottom: 8 }}>
                                         Amount to Send
                                     </p>
                                     <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", borderRadius: 12, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}>
@@ -185,7 +185,7 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
                                 </div>
 
                                 <div>
-                                    <p style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.25)", letterSpacing: "0.09em", textTransform: "uppercase" as const, fontFamily: "var(--font-sans,system-ui)", marginBottom: 8 }}>
+                                    <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.45)", letterSpacing: "0.09em", textTransform: "uppercase" as const, fontFamily: "var(--font-sans,system-ui)", marginBottom: 8 }}>
                                         Deposit Address ({meta.symbol})
                                     </p>
                                     <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", borderRadius: 12, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}>
@@ -208,8 +208,8 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
                                 { label: "Amount (USD)", value: `$${invoice.amountUsd.toFixed(2)}` },
                             ].map(({ label, value }) => (
                                 <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                    <span style={{ fontSize: 12, color: "rgba(255,255,255,0.28)", fontFamily: "var(--font-sans,system-ui)" }}>{label}</span>
-                                    <span style={{ fontSize: 12.5, color: "rgba(235,235,235,0.75)", fontFamily: "var(--font-sans,system-ui)", fontWeight: 500 }}>{value}</span>
+                                    <span style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", fontFamily: "var(--font-sans,system-ui)" }}>{label}</span>
+                                    <span style={{ fontSize: 12.5, color: "#FFFFFF", fontFamily: "var(--font-sans,system-ui)", fontWeight: 600 }}>{value}</span>
                                 </div>
                             ))}
                         </motion.div>
@@ -241,7 +241,7 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
                                         <Icon icon={meta.icon} style={{ fontSize: 16 }} />
                                         <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(235,235,235,0.8)", fontFamily: "var(--font-sans,system-ui)" }}>{meta.symbol}</span>
                                     </div>
-                                    <p style={{ fontSize: 10.5, color: "rgba(255,255,255,0.2)", fontFamily: "monospace" }}>
+                                    <p style={{ fontSize: 10.5, color: "rgba(255,255,255,0.4)", fontFamily: "monospace" }}>
                                         {invoice.cryptoAddress.slice(0, 8)}…{invoice.cryptoAddress.slice(-6)}
                                     </p>
                                 </div>

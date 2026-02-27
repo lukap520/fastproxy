@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 
 const navLinks = [
   { label: "Products", href: "/#products" },
+  { label: "Features", href: "/features" },
   { label: "Reviews", href: "/#reviews" },
   { label: "FAQ", href: "/#faq" },
 ];
@@ -15,9 +15,8 @@ const navLinks = [
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const pathname = usePathname();
 
-  const isHome = pathname === "/";
+  const showNavLinks = true;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -40,11 +39,11 @@ export default function Header() {
           }`}
       >
         <a
-          href="#"
+          href="/"
           className="flex items-center gap-2 w-[130px] group"
         >
           <div className="relative flex h-6 w-6 items-center justify-center rounded-md bg-accent/10 ring-1 ring-accent/10 group-hover:ring-accent/25 transition-all duration-300">
-            <Icon icon="mdi:flash" className="text-accent text-[11px]" />
+            <Icon icon="ph:lightning" className="text-accent text-[11px]" />
           </div>
           <span className="font-heading text-[13px] font-semibold tracking-tight text-foreground">
             FastProxy
@@ -52,7 +51,7 @@ export default function Header() {
         </a>
 
         <AnimatePresence mode="wait">
-          {isHome && (
+          {showNavLinks && (
             <motion.div
               key="nav-links"
               initial={{ opacity: 0 }}
@@ -65,7 +64,7 @@ export default function Header() {
                 <a
                   key={link.label}
                   href={link.href}
-                  className="rounded-full px-3.5 py-1.5 text-[12px] font-medium text-muted/50 transition-all duration-200 hover:text-foreground hover:bg-white/[0.05]"
+                  className="rounded-full px-3.5 py-1.5 text-[13px] font-semibold text-gray-200 transition-all duration-200 hover:text-white hover:bg-white/[0.08]"
                 >
                   {link.label}
                 </a>
@@ -77,7 +76,7 @@ export default function Header() {
         <div className="hidden md:flex items-center gap-2 ml-auto">
           <Link
             href="/login"
-            className="rounded-full px-3.5 py-1.5 text-[12px] font-medium text-muted/50 transition-all duration-200 hover:text-foreground hover:bg-white/[0.04]"
+            className="rounded-full px-3.5 py-1.5 text-[13px] font-semibold text-gray-200 transition-all duration-200 hover:text-white hover:bg-white/[0.08]"
           >
             Log in
           </Link>
@@ -109,12 +108,12 @@ export default function Header() {
             className="mx-auto mt-1.5 max-w-3xl rounded-3xl border border-white/[0.06] bg-background/85 px-4 py-3 backdrop-blur-xl md:hidden shadow-[0_8px_32px_-8px_rgba(0,0,0,0.5)]"
           >
             <div className="flex flex-col gap-0.5">
-              {isHome && navLinks.map((link) => (
+              {showNavLinks && navLinks.map((link) => (
                 <a
                   key={link.label}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className="rounded-lg px-3 py-2.5 text-sm font-medium text-muted/60 transition-all duration-200 hover:bg-white/[0.04] hover:text-foreground"
+                  className="rounded-lg px-3 py-2.5 text-sm font-medium text-muted/90 transition-all duration-200 hover:bg-white/[0.04] hover:text-foreground"
                 >
                   {link.label}
                 </a>
@@ -122,7 +121,7 @@ export default function Header() {
               <div className="my-1.5 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
               <Link
                 href="/login"
-                className="rounded-lg px-3 py-2.5 text-sm font-medium text-muted/60 transition-all duration-200 hover:bg-white/[0.04] hover:text-foreground"
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-muted/90 transition-all duration-200 hover:bg-white/[0.04] hover:text-foreground"
               >
                 Log in
               </Link>

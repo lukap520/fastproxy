@@ -7,10 +7,9 @@ import FooterCTA from "@/components/sections/FooterCTA";
 
 export default function Home() {
   return (
-    <div className="relative min-h-screen bg-background">
+    <div className="relative min-h-screen bg-black">
       <div className="bg-depth" />
       <div className="grid-bg" />
-      <div className="grain-overlay" />
       <Header />
       <main>
         <Hero />
