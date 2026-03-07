@@ -20,10 +20,14 @@ const NAV_GROUPS = [
         label: "Proxies",
         items: [
             { href: "/dashboard/proxies/residential", icon: "ph:globe-hemisphere-west", label: "Residential GB", comingSoon: false },
-            { href: "/dashboard/proxies/unlimited", icon: "ph:wave-sine", label: "Residential Unlimited", comingSoon: false },
-            { href: "/dashboard/proxies/datacenter", icon: "ph:buildings", label: "Datacenter", comingSoon: true },
-            { href: "/dashboard/proxies/isp", icon: "ph:broadcast", label: "ISP", comingSoon: true },
-            { href: "/dashboard/proxies/mobile", icon: "ph:device-mobile", label: "Mobile", comingSoon: true },
+            { href: "/dashboard/proxies/unlimited-residential", icon: "ph:wave-sine", label: "Residential Unlimited", comingSoon: false },
+            { href: "/dashboard/proxies/mobile", icon: "ph:device-mobile", label: "Mobile", comingSoon: false },
+            { href: "/dashboard/proxies/datacenter", icon: "ph:buildings", label: "Datacenter", comingSoon: false },
+            { href: "/dashboard/proxies/shared-isp", icon: "ph:broadcast", label: "Shared ISP", comingSoon: false },
+            { href: "/dashboard/proxies/ipv6-residential", icon: "ph:network", label: "IPv6 Residential", comingSoon: false },
+            { href: "/dashboard/proxies/ipv6-datacenter", icon: "ph:hard-drives", label: "IPv6 Datacenter", comingSoon: false },
+            { href: "/dashboard/proxies/dedicated-mobile", icon: "ph:sim-card", label: "Dedicated Mobile", comingSoon: false },
+            { href: "/dashboard/proxies/dedicated-isp", icon: "ph:lock-key", label: "Dedicated ISP", comingSoon: false },
         ],
     },
     {
@@ -48,6 +52,7 @@ const NAV_GROUPS = [
         ],
     },
 ];
+
 
 function Avatar({ name }: { name: string }) {
     const initials = name
@@ -313,7 +318,7 @@ export default function Sidebar() {
     if (!isSmall) {
         return (
             <aside style={{
-                width: 255, flexShrink: 0, height: "100vh", position: "sticky", top: 0,
+                width: 255, flexShrink: 0, height: "100vh", position: "fixed", top: 0, left: 0,
                 display: "flex", flexDirection: "column",
                 background: "rgba(7,7,7,0.9)",
                 backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)",

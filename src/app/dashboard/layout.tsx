@@ -8,15 +8,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const isSmall = isMobile || isTablet;
 
     return (
-        <div
-            style={{
-                display: "flex",
-                minHeight: "100vh",
-                background: "#000000",
-                position: "relative",
-                overflow: "hidden"
-            }}
-        >
+        <div style={{ display: "flex", minHeight: "100vh", background: "#000000" }}>
             <Sidebar />
             <main
                 style={{
@@ -25,9 +17,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     position: "relative",
                     display: "flex",
                     flexDirection: "column",
+                    marginLeft: isSmall ? 0 : 255,
+                    overflowY: "auto",
+                    height: "100vh",
                 }}
             >
-                <div className="grid-bg opacity-70" style={{ left: isSmall ? 0 : 0 }} />
+                <div className="grid-bg opacity-70" />
                 <div style={{
                     position: "fixed",
                     top: 0,
@@ -38,18 +33,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     pointerEvents: "none",
                     zIndex: 0,
                 }} />
-                <div
-                    style={{
-                        position: "fixed",
-                        top: 0,
-                        left: isSmall ? 0 : 255,
-                        right: 0,
-                        height: "1px",
-                        background: "linear-gradient(90deg, rgba(255,107,0,0.15), transparent 80%)",
-                        pointerEvents: "none",
-                        zIndex: 30,
-                    }}
-                />
+                <div style={{
+                    position: "fixed",
+                    top: 0,
+                    left: isSmall ? 0 : 255,
+                    right: 0,
+                    height: "1px",
+                    background: "linear-gradient(90deg, rgba(255,107,0,0.15), transparent 80%)",
+                    pointerEvents: "none",
+                    zIndex: 30,
+                }} />
                 <div style={{ position: "relative", zIndex: 10, display: "flex", flexDirection: "column", flex: 1 }}>
                     {children}
                 </div>

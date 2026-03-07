@@ -1,14 +1,15 @@
 import { createTRPCRouter } from "@/server/trpc";
 import { authRouter } from "./auth";
 import { billingRouter } from "./billing";
-import { proxyRouter } from "./proxy";
 import { adminRouter } from "./admin";
+import { flashproxyRouter } from "./flashproxy";
 
 export const appRouter = createTRPCRouter({
     auth: authRouter,
     billing: billingRouter,
-    proxy: proxyRouter,
+
     admin: adminRouter,
+    flashproxy: flashproxyRouter,
 });
 
 export type AppRouter = typeof appRouter;

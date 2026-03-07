@@ -20,6 +20,10 @@ const CRYPTO_META: Record<string, { symbol: string; icon: string; color: string;
 };
 
 const STATUS_CONFIG = {
+    new: {
+        label: "Awaiting Payment", description: "Send exact amount",
+        dotColor: "rgb(251,191,36)", glow: "rgba(251,191,36,0.4)", bg: "rgba(251,191,36,0.06)", border: "rgba(251,191,36,0.14)", text: "rgb(251,191,36)",
+    },
     waiting: {
         label: "Awaiting Payment", description: "Send exact amount",
         dotColor: "rgb(251,191,36)", glow: "rgba(251,191,36,0.4)", bg: "rgba(251,191,36,0.06)", border: "rgba(251,191,36,0.14)", text: "rgb(251,191,36)",
@@ -27,6 +31,10 @@ const STATUS_CONFIG = {
     pending: {
         label: "Awaiting Payment", description: "Send exact amount",
         dotColor: "rgb(251,191,36)", glow: "rgba(251,191,36,0.4)", bg: "rgba(251,191,36,0.06)", border: "rgba(251,191,36,0.14)", text: "rgb(251,191,36)",
+    },
+    paying: {
+        label: "Payment Detected", description: "Confirming on network",
+        dotColor: "rgb(96,165,250)", glow: "rgba(96,165,250,0.4)", bg: "rgba(96,165,250,0.06)", border: "rgba(96,165,250,0.14)", text: "rgb(96,165,250)",
     },
     confirming: {
         label: "Confirming", description: "Confirming on network",
@@ -40,12 +48,24 @@ const STATUS_CONFIG = {
         label: "Action Required", description: "Insufficient amount sent",
         dotColor: "rgb(249,115,22)", glow: "rgba(249,115,22,0.4)", bg: "rgba(249,115,22,0.06)", border: "rgba(249,115,22,0.14)", text: "rgb(249,115,22)",
     },
+    underpaid: {
+        label: "Underpaid", description: "Insufficient amount sent",
+        dotColor: "rgb(249,115,22)", glow: "rgba(249,115,22,0.4)", bg: "rgba(249,115,22,0.06)", border: "rgba(249,115,22,0.14)", text: "rgb(249,115,22)",
+    },
     confirmed: {
         label: "Confirmed", description: "Funds credited to balance",
         dotColor: "rgb(52,211,153)", glow: "rgba(52,211,153,0.5)", bg: "rgba(52,211,153,0.05)", border: "rgba(52,211,153,0.14)", text: "rgb(52,211,153)",
     },
+    paid: {
+        label: "Paid", description: "Funds credited to balance",
+        dotColor: "rgb(52,211,153)", glow: "rgba(52,211,153,0.5)", bg: "rgba(52,211,153,0.05)", border: "rgba(52,211,153,0.14)", text: "rgb(52,211,153)",
+    },
     finished: {
         label: "Paid", description: "Funds credited to balance",
+        dotColor: "rgb(52,211,153)", glow: "rgba(52,211,153,0.5)", bg: "rgba(52,211,153,0.05)", border: "rgba(52,211,153,0.14)", text: "rgb(52,211,153)",
+    },
+    manual_accept: {
+        label: "Accepted", description: "Funds credited to balance",
         dotColor: "rgb(52,211,153)", glow: "rgba(52,211,153,0.5)", bg: "rgba(52,211,153,0.05)", border: "rgba(52,211,153,0.14)", text: "rgb(52,211,153)",
     },
     expired: {
@@ -55,6 +75,10 @@ const STATUS_CONFIG = {
     failed: {
         label: "Failed", description: "Payment failed",
         dotColor: "rgba(239,68,68,0.7)", glow: "none", bg: "rgba(239,68,68,0.04)", border: "rgba(239,68,68,0.1)", text: "rgba(239,68,68,0.7)",
+    },
+    refunding: {
+        label: "Refunding", description: "Refund in progress",
+        dotColor: "rgba(255,255,255,0.4)", glow: "none", bg: "rgba(255,255,255,0.02)", border: "rgba(255,255,255,0.06)", text: "rgba(255,255,255,0.4)",
     },
     refunded: {
         label: "Refunded", description: "Refunded successfully",
@@ -86,8 +110,8 @@ export default function InvoicesPage() {
     }, [userLoading, userError, user, router]);
 
     type Invoice = NonNullable<typeof invoices>[number];
-    const confirmed = invoices?.filter((i: Invoice) => i.status === "confirmed" || i.status === "finished") ?? [];
-    const pending = invoices?.filter((i: Invoice) => ["pending", "waiting", "confirming", "sending", "partially_paid"].includes(i.status)) ?? [];
+    const confirmed = invoices?.filter((i: Invoice) => ["confirmed", "finished", "paid", "manual_accept"].includes(i.status)) ?? [];
+    const pending = invoices?.filter((i: Invoice) => ["new", "pending", "waiting", "paying", "confirming", "sending", "partially_paid", "underpaid"].includes(i.status)) ?? [];
     const totalDeposited = confirmed.reduce((s: number, i: Invoice) => s + i.amountUsd, 0);
 
     if (userLoading || isLoading) return (

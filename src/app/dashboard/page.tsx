@@ -16,6 +16,7 @@ const CRYPTO_COLOR: Record<string, string> = {
 const STATUS_CFG: Record<string, { label: string; dot: string; bg: string; border: string }> = {
     confirmed: { label: "Confirmed", dot: "rgb(52,211,153)", bg: "rgba(52,211,153,0.05)", border: "rgba(52,211,153,0.14)" },
     pending: { label: "Pending", dot: "rgb(251,191,36)", bg: "rgba(251,191,36,0.06)", border: "rgba(251,191,36,0.14)" },
+    waiting: { label: "Awaiting Payment", dot: "rgb(251,191,36)", bg: "rgba(251,191,36,0.06)", border: "rgba(251,191,36,0.14)" },
     expired: { label: "Expired", dot: "rgba(239,68,68,0.7)", bg: "rgba(239,68,68,0.04)", border: "rgba(239,68,68,0.1)" },
     cancelled: { label: "Cancelled", dot: "rgba(255,255,255,0.2)", bg: "rgba(255,255,255,0.015)", border: "rgba(255,255,255,0.05)" },
 };
@@ -49,7 +50,6 @@ export default function DashboardPage() {
     const isSmall = isMobile || isTablet;
     const { data: user, isLoading, error } = trpc.auth.me.useQuery();
     const { data: invoices } = trpc.billing.getUserInvoices.useQuery();
-    const { data: proxy } = trpc.proxy.getMyProxy.useQuery();
 
     useEffect(() => {
         if (!isLoading && (error || !user)) router.replace("/login");
@@ -66,9 +66,6 @@ export default function DashboardPage() {
     const totalDeposited = confirmed.reduce((s, i) => s + i.amountUsd, 0);
     const recent = invoices?.slice(0, 5) ?? [];
 
-    const proxyPct = proxy && proxy.allocatedGb > 0
-        ? Math.min((proxy.gbUsed / proxy.allocatedGb) * 100, 100) : 0;
-    const proxyBarColor = proxyPct > 85 ? "rgb(239,68,68)" : proxyPct > 60 ? "rgb(251,191,36)" : "rgb(52,211,153)";
 
     return (
         <div style={{ flex: 1, padding: isSmall ? "80px 20px 40px" : "52px 56px", maxWidth: 1060, width: "100%", margin: "0 auto" }}>
@@ -89,7 +86,7 @@ export default function DashboardPage() {
                 {[
                     { label: "Balance", value: `$${user.balance.toFixed(2)}`, icon: "ph:wallet", accent: "rgba(255,107,0,0.75)", bg: "rgba(255,107,0,0.06)", border: "rgba(255,107,0,0.12)" },
                     { label: "Total Deposited", value: `$${totalDeposited.toFixed(2)}`, icon: "ph:arrow-down-left", accent: "rgb(52,211,153)", bg: "rgba(52,211,153,0.05)", border: "rgba(52,211,153,0.1)" },
-                    { label: "Bandwidth", value: proxy ? `${proxy.allocatedGb.toFixed(1)} GB` : "—", icon: "ph:arrows-left-right", accent: "rgba(99,126,234,0.85)", bg: "rgba(99,126,234,0.05)", border: "rgba(99,126,234,0.1)" },
+                    { label: "Active Proxies", value: "—", icon: "ph:arrows-left-right", accent: "rgba(99,126,234,0.85)", bg: "rgba(99,126,234,0.05)", border: "rgba(99,126,234,0.1)" },
                     { label: "Pending", value: String(pending.length), icon: "ph:clock", accent: pending.length > 0 ? "rgb(251,191,36)" : "rgba(255,255,255,0.22)", bg: pending.length > 0 ? "rgba(251,191,36,0.05)" : "rgba(255,255,255,0.015)", border: pending.length > 0 ? "rgba(251,191,36,0.1)" : "rgba(255,255,255,0.04)" },
                 ].map((s, i) => (
                     <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.28, delay: 0.05 + i * 0.04 }}
@@ -192,7 +189,7 @@ export default function DashboardPage() {
                 </motion.div>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                    <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: proxy ? 0.26 : 0.22 }}>
+                    <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.22 }}>
                         <GlassCard>
                             <div style={{ padding: "16px 20px 14px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
                                 <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: "rgba(255,255,255,0.75)", fontFamily: "var(--font-sans,system-ui)", textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}>
@@ -202,7 +199,7 @@ export default function DashboardPage() {
                             <div style={{ padding: "12px 16px", display: "flex", flexDirection: "column", gap: 6 }}>
                                 {[
                                     { href: "/dashboard/billing/topup", icon: "ph:plus-circle", label: "Add Funds", sub: `$${user.balance.toFixed(2)} available`, orange: true },
-                                    { href: "/dashboard/proxies/residential", icon: "ph:globe-hemisphere-west", label: proxy ? "Top Up Bandwidth" : "Buy Proxy", sub: proxy ? `${(proxy.allocatedGb - proxy.gbUsed).toFixed(2)} GB remaining` : "$1.60 / GB", orange: false },
+                                    { href: "/dashboard/proxies/residential", icon: "ph:globe-hemisphere-west", label: "Residential GB", sub: "Buy proxy bandwidth", orange: false },
                                     { href: "/dashboard/billing/invoices", icon: "ph:receipt", label: "Invoices", sub: `${invoices?.length ?? 0} total`, orange: false },
                                     { href: "/dashboard/settings", icon: "ph:gear-six", label: "Settings", sub: "Account & security", orange: false },
                                 ].map((a) => (

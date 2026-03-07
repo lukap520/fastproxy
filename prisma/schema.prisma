@@ -49,7 +49,7 @@ model Invoice {
     cryptoAddress String
     cryptoAmount  Float
     status        String   @default("pending")
-    nowPaymentsId String?  @unique
+    oxaPayTrackId String?  @unique
     actuallyPaid  Float?
     expiresAt     DateTime
     createdAt     DateTime @default(now())

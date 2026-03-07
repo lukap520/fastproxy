@@ -21,14 +21,20 @@ const CRYPTO_META: Record<string, { name: string; icon: string; symbol: string; 
 };
 
 const STATUS_CONFIG = {
+    new: { label: "Awaiting Payment", color: "rgb(251,191,36)", bg: "rgba(251,191,36,0.08)", border: "rgba(251,191,36,0.2)", icon: "ph:clock" },
     waiting: { label: "Awaiting Payment", color: "rgb(251,191,36)", bg: "rgba(251,191,36,0.08)", border: "rgba(251,191,36,0.2)", icon: "ph:clock" },
     pending: { label: "Awaiting Payment", color: "rgb(251,191,36)", bg: "rgba(251,191,36,0.08)", border: "rgba(251,191,36,0.2)", icon: "ph:clock" },
+    paying: { label: "Payment Detected", color: "rgb(96,165,250)", bg: "rgba(96,165,250,0.08)", border: "rgba(96,165,250,0.2)", icon: "ph:spinner" },
     confirming: { label: "Confirming", color: "rgb(96,165,250)", bg: "rgba(96,165,250,0.08)", border: "rgba(96,165,250,0.2)", icon: "ph:spinner" },
     confirmed: { label: "Confirmed", color: "rgb(52,211,153)", bg: "rgba(52,211,153,0.08)", border: "rgba(52,211,153,0.2)", icon: "ph:check-circle" },
     sending: { label: "Processing", color: "rgb(96,165,250)", bg: "rgba(96,165,250,0.08)", border: "rgba(96,165,250,0.2)", icon: "ph:paper-plane-tilt" },
-    partially_paid: { label: "Partially Paid", color: "rgb(249,115,22)", bg: "rgba(249,115,22,0.08)", border: "rgba(249,115,22,0.2)", icon: "ph:warning-circle" },
+    paid: { label: "Paid", color: "rgb(52,211,153)", bg: "rgba(52,211,153,0.08)", border: "rgba(52,211,153,0.2)", icon: "ph:check-circle" },
     finished: { label: "Paid", color: "rgb(52,211,153)", bg: "rgba(52,211,153,0.08)", border: "rgba(52,211,153,0.2)", icon: "ph:check-circle" },
+    manual_accept: { label: "Accepted", color: "rgb(52,211,153)", bg: "rgba(52,211,153,0.08)", border: "rgba(52,211,153,0.2)", icon: "ph:check-circle" },
+    partially_paid: { label: "Partially Paid", color: "rgb(249,115,22)", bg: "rgba(249,115,22,0.08)", border: "rgba(249,115,22,0.2)", icon: "ph:warning-circle" },
+    underpaid: { label: "Underpaid", color: "rgb(249,115,22)", bg: "rgba(249,115,22,0.08)", border: "rgba(249,115,22,0.2)", icon: "ph:warning-circle" },
     failed: { label: "Failed", color: "rgb(239,68,68)", bg: "rgba(239,68,68,0.06)", border: "rgba(239,68,68,0.15)", icon: "ph:x-circle" },
+    refunding: { label: "Refunding", color: "rgba(255,255,255,0.4)", bg: "rgba(255,255,255,0.02)", border: "rgba(255,255,255,0.06)", icon: "ph:arrow-u-up-left" },
     refunded: { label: "Refunded", color: "rgba(255,255,255,0.4)", bg: "rgba(255,255,255,0.02)", border: "rgba(255,255,255,0.06)", icon: "ph:arrow-u-up-left" },
     expired: { label: "Expired", color: "rgb(239,68,68)", bg: "rgba(239,68,68,0.06)", border: "rgba(239,68,68,0.15)", icon: "ph:x-circle" },
     cancelled: { label: "Cancelled", color: "rgba(255,255,255,0.3)", bg: "rgba(255,255,255,0.02)", border: "rgba(255,255,255,0.06)", icon: "ph:minus-circle" },
@@ -255,19 +261,19 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
                                 <div>
                                     <p style={{ fontSize: 13, fontWeight: 600, color: status.color, fontFamily: "var(--font-sans,system-ui)" }}>{status.label}</p>
                                     <p style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", fontFamily: "var(--font-sans,system-ui)", marginTop: 2 }}>
-                                        {["pending", "waiting"].includes(invoice.status) ? "Waiting for blockchain confirmation"
-                                            : ["confirming", "sending"].includes(invoice.status) ? "Transaction detected, confirming on blockchain..."
-                                                : ["confirmed", "finished"].includes(invoice.status) ? "Funds successfully added to your balance"
-                                                    : invoice.status === "partially_paid" ? "Transaction detected but amount was insufficient"
+                                        {["new", "pending", "waiting"].includes(invoice.status) ? "Waiting for your crypto transfer"
+                                            : ["paying", "confirming", "sending"].includes(invoice.status) ? "Transaction detected, confirming on blockchain..."
+                                                : ["paid", "confirmed", "finished", "manual_accept"].includes(invoice.status) ? "Funds successfully added to your balance"
+                                                    : ["underpaid", "partially_paid"].includes(invoice.status) ? "Transaction detected but amount was insufficient"
                                                         : "This invoice can no longer be paid"}
                                     </p>
                                 </div>
                             </div>
-                            {["pending", "waiting", "confirming", "sending"].includes(invoice.status) && (
+                            {["new", "pending", "waiting", "paying", "confirming", "sending"].includes(invoice.status) && (
                                 <button type="button" onClick={() => refetch()} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "8px", borderRadius: 9, border: "1px solid rgba(255,255,255,0.07)", background: "rgba(255,255,255,0.02)", color: "rgba(255,255,255,0.4)", fontSize: 12, fontWeight: 500, fontFamily: "var(--font-sans,system-ui)", cursor: "pointer", transition: "all 0.15s" }}
                                     onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.05)")}
                                     onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.02)")}>
-                                    <Icon icon={invoice.status === "confirming" || invoice.status === "sending" ? "ph:spinner" : "ph:arrows-clockwise"} style={{ fontSize: 14, animation: invoice.status === "confirming" || invoice.status === "sending" ? "spin 1.5s linear infinite" : "none" }} />
+                                    <Icon icon={["paying", "confirming", "sending"].includes(invoice.status) ? "ph:spinner" : "ph:arrows-clockwise"} style={{ fontSize: 14, animation: ["paying", "confirming", "sending"].includes(invoice.status) ? "spin 1.5s linear infinite" : "none" }} />
                                     Check Status
                                 </button>
                             )}
