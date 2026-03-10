@@ -166,19 +166,6 @@ export default function DedicatedMobilePage() {
                             </div>
                         </motion.div>
 
-                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-                            style={{ borderRadius: 16, background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.055)", overflow: "hidden" }}>
-                            <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                                <span style={{ fontSize: 13.5, fontWeight: 700, color: "#FFFFFF", fontFamily: "var(--font-sans,system-ui)" }}>Credentials</span>
-                            </div>
-                            <div style={{ padding: "16px 20px", display: "flex", flexDirection: "column", gap: 8 }}>
-                                <CredentialRow label="Username" value={activePlan.proxy_username} mono />
-                                <CredentialRow label="Password" value={activePlan.proxy_password} mono />
-                                <CredentialRow label="Host (HTTP)" value={`${activePlan.connection.hostname}:${activePlan.connection.port_http}`} mono />
-                                {activePlan.connection.port_socks && <CredentialRow label="Host (SOCKS5)" value={`${activePlan.connection.hostname}:${activePlan.connection.port_socks}`} mono />}
-                            </div>
-                        </motion.div>
-
                         {(activePlan.dedicated_proxies?.length ?? 0) > 0 && (
                             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}
                                 style={{ borderRadius: 16, background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.055)", overflow: "hidden" }}>

@@ -39,6 +39,30 @@ const PRODUCT = z.enum([
 
 const DURATION = z.enum(["trial", "1_hour", "1_day", "7_days", "14_days", "30_days", "60_days", "90_days"]);
 
+const HOST_MAP: Record<string, string> = {
+    "residential": "geo.fastproxy.to",
+    "residential-lite": "lite.fastproxy.to",
+    "mobile": "geo.fastproxy.to",
+    "datacenter": "v3-dc.fastproxy.to",
+    "shared_isp": "v3-isp.fastproxy.to",
+    "ipv6-residential": "v3-v6-resi.fastproxy.to",
+    "ipv6-datacenter": "v3-v6-dc.fastproxy.to",
+    "unlimited_residential": "unlim.fastproxy.to",
+};
+
+function patchPlan(plan: any) {
+    if (!plan || !plan.product) return plan;
+    const host = HOST_MAP[plan.product as string];
+    if (host && plan.connection) {
+        plan.connection.hostname = host;
+
+        if (plan.connection.format) {
+            plan.connection.format = plan.connection.format.replace(/@\d+\.\d+\.\d+\.\d+/, `@${host}`).replace(/@[^:]+/, `@${host}`);
+        }
+    }
+    return plan;
+}
+
 export const flashproxyRouter = createTRPCRouter({
     getPricing: protectedProcedure.query(async () => {
         return fp("/balance/pricing");
@@ -66,16 +90,54 @@ export const flashproxyRouter = createTRPCRouter({
             status: z.enum(["active", "expired", "cancelled", "all"]).default("all"),
             page: z.number().default(1),
         }))
-        .query(async ({ input }) => {
-            const params = new URLSearchParams({ status: input.status, page: String(input.page) });
+        .query(async ({ ctx, input }) => {
+            const userPlans = await ctx.db.plan.findMany({
+                where: { userId: ctx.user.id },
+                select: { id: true },
+            });
+            let planIds = new Set(userPlans.map(p => p.id));
+
+            const params = new URLSearchParams({ status: input.status, page: String(input.page), per_page: "100" });
             if (input.product) params.set("product", input.product);
-            return fp(`/plans?${params}`);
+            const data = await fp(`/plans?${params}`);
+
+            const apiItems = data.items || data.plans || [];
+
+            if (apiItems.length > 0) {
+                for (const p of apiItems) {
+                    if (planIds.has(p.plan_id)) continue;
+
+                    if (p.end_user_reference === ctx.user.id) {
+                        const inDb = await ctx.db.plan.findUnique({ where: { id: p.plan_id } });
+                        if (!inDb) {
+                            await ctx.db.plan.create({
+                                data: { id: p.plan_id, userId: ctx.user.id, product: p.product },
+                            }).catch(() => { });
+                            planIds.add(p.plan_id);
+                        }
+                    }
+                }
+
+                data.items = apiItems.filter((p: any) => planIds.has(p.plan_id)).map(patchPlan);
+            } else {
+                data.items = [];
+            }
+
+            delete data.plans;
+            return data;
         }),
 
     getPlan: protectedProcedure
         .input(z.object({ planId: z.string() }))
-        .query(async ({ input }) => {
-            return fp(`/plans/${input.planId}`);
+        .query(async ({ ctx, input }) => {
+            const ownership = await ctx.db.plan.findUnique({
+                where: { id: input.planId },
+            });
+            if (!ownership || ownership.userId !== ctx.user.id) {
+                throw new TRPCError({ code: "FORBIDDEN", message: "You do not own this plan." });
+            }
+            const plan = await fp(`/plans/${input.planId}`);
+            return patchPlan(plan);
         }),
 
     createPlan: protectedProcedure
@@ -112,7 +174,10 @@ export const flashproxyRouter = createTRPCRouter({
                 });
             }
 
-            const body: Record<string, unknown> = { product: input.product };
+            const body: Record<string, unknown> = {
+                product: input.product,
+                end_user_reference: ctx.user.id
+            };
             if (input.bandwidth_gb !== undefined) body.bandwidth_gb = input.bandwidth_gb;
             if (input.duration) body.duration = input.duration;
             if (input.billing_type) body.billing_type = input.billing_type;
@@ -125,9 +190,17 @@ export const flashproxyRouter = createTRPCRouter({
             if (input.pool_id) body.pool_id = input.pool_id;
             if (input.country) body.country = input.country;
             if (input.operator) body.operator = input.operator;
-            if (input.end_user_reference) body.end_user_reference = input.end_user_reference;
 
             const plan = await fp("/plans", { method: "POST", body: JSON.stringify(body) });
+
+            // Store plan mapping to the user
+            await ctx.db.plan.create({
+                data: {
+                    id: plan.plan_id,
+                    userId: ctx.user.id,
+                    product: input.product,
+                },
+            });
 
             const actualCost = plan.billing?.cost_cents ? plan.billing.cost_cents / 100 : costUsd;
             if (actualCost > 0) {
@@ -137,7 +210,7 @@ export const flashproxyRouter = createTRPCRouter({
                 });
             }
 
-            return plan;
+            return patchPlan(plan);
         }),
 
     extendPlan: protectedProcedure
@@ -148,6 +221,13 @@ export const flashproxyRouter = createTRPCRouter({
             extend_30_days: z.boolean().optional(),
         }))
         .mutation(async ({ ctx, input }) => {
+            const ownership = await ctx.db.plan.findUnique({
+                where: { id: input.planId },
+            });
+            if (!ownership || ownership.userId !== ctx.user.id) {
+                throw new TRPCError({ code: "FORBIDDEN", message: "You do not own this plan." });
+            }
+
             const { planId, ...body } = input;
 
             const pricing = await fp("/balance/pricing") as Record<string, { price_per_gb_cents?: number } & Record<string, unknown>>;
@@ -179,15 +259,39 @@ export const flashproxyRouter = createTRPCRouter({
             return result;
         }),
 
+    getCountries: protectedProcedure
+        .input(z.object({
+            product_type: z.enum([
+                "residential", "residential-lite", "mobile",
+                "datacenter", "shared_isp", "ipv6-residential", "ipv6-datacenter"
+            ])
+        }))
+        .query(async ({ input }) => {
+            const params = new URLSearchParams({ product_type: input.product_type });
+            return fp(`/geo/countries?${params}`);
+        }),
+
     cancelPlan: protectedProcedure
         .input(z.object({ planId: z.string() }))
-        .mutation(async ({ input }) => {
+        .mutation(async ({ ctx, input }) => {
+            const ownership = await ctx.db.plan.findUnique({
+                where: { id: input.planId },
+            });
+            if (!ownership || ownership.userId !== ctx.user.id) {
+                throw new TRPCError({ code: "FORBIDDEN", message: "You do not own this plan." });
+            }
             return fp(`/plans/${input.planId}`, { method: "DELETE" });
         }),
 
     getPlanProxies: protectedProcedure
         .input(z.object({ planId: z.string() }))
-        .query(async ({ input }) => {
+        .query(async ({ ctx, input }) => {
+            const ownership = await ctx.db.plan.findUnique({
+                where: { id: input.planId },
+            });
+            if (!ownership || ownership.userId !== ctx.user.id) {
+                throw new TRPCError({ code: "FORBIDDEN", message: "You do not own this plan." });
+            }
             return fp(`/plans/${input.planId}/proxies`);
         }),
 });

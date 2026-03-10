@@ -24,6 +24,17 @@ model User {
     sessions     Session[]
     invoices     Invoice[]
     proxySubuser ProxySubuser?
+    plans        Plan[]
+}
+
+model Plan {
+    id        String   @id
+    userId    String
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    product   String
+    createdAt DateTime @default(now())
+
+    @@index([userId])
 }
 
 model ProxySubuser {

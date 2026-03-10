@@ -77,7 +77,6 @@ export default function DedicatedIspPage() {
 
     const [quantity, setQuantity] = useState(1);
     const [selectedPool, setSelectedPool] = useState("");
-    const [duration, setDuration] = useState<"7_days" | "14_days" | "30_days" | "60_days" | "90_days">("30_days");
     const [showExtend, setShowExtend] = useState(false);
     const [addDays, setAddDays] = useState(30);
     const [copiedAll, setCopiedAll] = useState(false);
@@ -327,24 +326,9 @@ export default function DedicatedIspPage() {
                                 {poolInfo && <p style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", marginTop: 5, fontFamily: "var(--font-sans,system-ui)" }}>{poolInfo.stock} IPs available in this pool</p>}
                             </div>
 
-                            <div>
-                                <p style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.7)", marginBottom: 8, fontFamily: "var(--font-sans,system-ui)" }}>Duration</p>
-                                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
-                                    {DURATIONS_DEDICATED.map(d => {
-                                        const on = duration === d.id;
-                                        return (
-                                            <button key={d.id} type="button" onClick={() => setDuration(d.id as "7_days" | "14_days" | "30_days" | "60_days" | "90_days")}
-                                                style={{ padding: "9px", borderRadius: 9, border: on ? "1px solid rgba(255,107,0,0.4)" : "1px solid rgba(255,255,255,0.06)", background: on ? "rgba(255,107,0,0.08)" : "rgba(255,255,255,0.018)", color: on ? "rgb(255,107,0)" : "rgba(255,255,255,0.7)", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
-                                                {d.label}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-
-                            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", fontFamily: "var(--font-sans,system-ui)" }}>Price calculated based on pool, quantity, and duration.</p>
+                            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", fontFamily: "var(--font-sans,system-ui)" }}>Price is per 30-day period per IP.</p>
                             <button type="button" disabled={create.isPending || !selectedPool}
-                                onClick={() => create.mutate({ product: "dedicated_isp", pool: selectedPool, quantity, duration })}
+                                onClick={() => create.mutate({ product: "dedicated_isp", pool: selectedPool, quantity })}
                                 style={{ width: "80%", alignSelf: "center", padding: "10px", borderRadius: 11, border: "none", background: selectedPool ? "hsl(24, 100%, 45%)" : "rgba(255,255,255,0.05)", color: selectedPool ? "rgba(255,255,255,0.93)" : "rgba(255,255,255,0.18)", fontSize: 13.5, fontWeight: 600, cursor: selectedPool ? "pointer" : "not-allowed", boxShadow: selectedPool ? "0 1px 3px rgba(0,0,0,0.4)" : "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "var(--font-sans,system-ui)" }}>
                                 {create.isPending ? <><Icon icon="ph:spinner" style={{ fontSize: 16, animation: "spin 1s linear infinite" }} />Processing...</> : "Purchase Plan"}
                             </button>

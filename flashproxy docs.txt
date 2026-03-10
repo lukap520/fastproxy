@@ -1,0 +1,2927 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "FlashProxy Reseller API",
+    "version": "2.1.0",
+    "description": "# FlashProxy Reseller API - Complete Documentation\n\nThis is the complete API documentation for the FlashProxy Reseller API. Use this specification to build proxy reselling platforms, automate proxy management, or integrate FlashProxy services into your applications.\n\n## Base URL\n- **Production**: `https://rapi.flashproxy.com/api/v1`\n- **Development**: `http://localhost:3000/api/v1`\n- **Sandbox**: `https://rapi.flashproxy.com/sandbox/api/v1`\n\n## Authentication\nAll API requests require authentication via Bearer token. Include your API key in the `Authorization` header:\n```\nAuthorization: Bearer fp_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n```\n\nAPI keys start with `fp_live_` for production or `fp_test_` for sandbox mode.\n\n## Rate Limiting\n- Default: 100 requests per minute per API key\n- Burst: Up to 20 concurrent requests\n\n## Error Codes\n| Code | HTTP Status | Description |\n|------|-------------|-------------|\n| `VALIDATION_ERROR` | 400 | Invalid request parameters |\n| `UNAUTHORIZED` | 401 | Invalid or missing API key |\n| `INSUFFICIENT_BALANCE` | 402 | Not enough balance |\n| `FORBIDDEN` | 403 | Account suspended |\n| `PRODUCT_DISABLED` | 403 | Product not enabled for account |\n| `NOT_FOUND` | 404 | Resource not found |\n| `INVALID_POOL` | 400 | Invalid pool name (dedicated_isp) |\n| `POOL_OUT_OF_STOCK` | 409 | Insufficient stock in pool (dedicated_isp) |\n| `OUT_OF_STOCK` | 409 | Product out of stock |\n| `RATE_LIMITED` | 429 | Too many requests |\n| `INTERNAL_ERROR` | 500 | Server error |\n\n---\n\n## Products Overview\n\n| Product | Billing | Use Case |\n|---------|---------|----------|\n| `residential-lite` | Per GB | High-volume scraping |\n| `residential` | Per GB | Premium scraping |\n| `mobile` | Per GB | Mobile targets |\n| `datacenter` | Per GB or Time | High-speed tasks |\n| `shared_isp` | Per GB or Time | ISP-grade IPs |\n| `ipv6-residential` | Per GB or Time | IPv6 targets |\n| `ipv6-datacenter` | Per GB or Time | IPv6 datacenter |\n| `unlimited_residential` | Per Time | Unlimited bandwidth |\n| `dedicated_mobile` | Per Time | Dedicated 4G/5G |\n| `dedicated_isp` | Per IP (30 days) | Static ISP IPs |\n\n---\n\n## Proxy Connection Formats\n\n### Residential Lite\n- HTTP: `lite.proxyserver.bot:6969`\n- SOCKS5: `lite.proxyserver.bot:9696`\n\n### Residential / Mobile\n- HTTP: `geo.proxyserver.bot:8080`\n- SOCKS5: `geo.proxyserver.bot:1080`\n\n### IPv6 Residential\n- HTTP: `USERNAME-package-ipv6:PASSWORD@v3-v6-resi.proxyserver.bot:30`\n- SOCKS5: `USERNAME-package-ipv6:PASSWORD@v3-v6-resi.proxyserver.bot:31`\n\n### IPv6 Datacenter\n- HTTP: `USERNAME:PASSWORD@v3-v6-dc.proxyserver.bot:50`\n- SOCKS5: `USERNAME:PASSWORD@v3-v6-dc.proxyserver.bot:51`\n\n### Unlimited Residential\n- HTTP: `\u003CSERVER_IP\u003E:9999`\n\n### Dedicated Mobile\n- HTTP/SOCKS5: `\u003CSERVER_IP\u003E:\u003CPORT\u003E`\n\n---\n\n## Geo Targeting Username Format\n```\n{username}-country-{CC}-state-{STATE}-city-{CITY}-session-{ID}\n```\n\nExamples:\n- `user123-country-US` (United States)\n- `user123-country-US-state-CA` (California)\n- `user123-country-US-session-abc123` (Sticky session)",
+    "contact": {
+      "name": "FlashProxy Support",
+      "email": "support@flashproxy.io",
+      "url": "https://flashproxy.io"
+    },
+    "license": {
+      "name": "Proprietary",
+      "url": "https://flashproxy.io/terms"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://rapi.flashproxy.com/api/v1",
+      "description": "Production Server"
+    },
+    {
+      "url": "http://localhost:3000/api/v1",
+      "description": "Development Server"
+    },
+    {
+      "url": "https://rapi.flashproxy.com/sandbox/api/v1",
+      "description": "Sandbox Server"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Balance",
+      "description": "Manage account balance and transactions"
+    },
+    {
+      "name": "Plans",
+      "description": "Create, manage, and extend proxy plans"
+    },
+    {
+      "name": "Stock",
+      "description": "Check product availability"
+    },
+    {
+      "name": "Servers",
+      "description": "Server management for dedicated products"
+    },
+    {
+      "name": "Geo",
+      "description": "Geo-targeting options"
+    },
+    {
+      "name": "Usage",
+      "description": "Track bandwidth usage"
+    },
+    {
+      "name": "Proxies",
+      "description": "Proxy utilities and configuration"
+    },
+    {
+      "name": "Sub-Users",
+      "description": "Manage sub-users"
+    }
+  ],
+  "paths": {
+    "/balance": {
+      "get": {
+        "operationId": "getBalance",
+        "tags": [
+          "Balance"
+        ],
+        "summary": "Get current balance",
+        "description": "Returns your account's current balance, pre-paid allocations, and spending statistics.",
+        "responses": {
+          "200": {
+            "description": "Balance retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BalanceResponse"
+                },
+                "examples": {
+                  "with_balance": {
+                    "summary": "Account with balance",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "balance_cents": 500000,
+                        "balance_formatted": "$5,000.00",
+                        "allocations": {
+                          "residential": null,
+                          "residential-lite": {
+                            "gb_remaining": 50,
+                            "bytes_remaining": 50000000000
+                          },
+                          "mobile": null
+                        },
+                        "total_spent_cents": 150000,
+                        "total_spent_formatted": "$1,500.00"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/balance/transactions": {
+      "get": {
+        "operationId": "getTransactions",
+        "tags": [
+          "Balance"
+        ],
+        "summary": "Get transaction history",
+        "description": "Returns paginated list of all balance transactions.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "topup",
+                "purchase",
+                "extend",
+                "refund",
+                "adjustment",
+                "all"
+              ],
+              "default": "all"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transactions retrieved",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "data": {
+                    "items": [
+                      {
+                        "id": "txn_abc123",
+                        "type": "topup",
+                        "amount_cents": 100000,
+                        "amount_formatted": "$1,000.00",
+                        "description": "Paddle top-up",
+                        "balance_after_cents": 500000,
+                        "created_at": "2025-01-15T10:30:00.000Z"
+                      }
+                    ],
+                    "pagination": {
+                      "page": 1,
+                      "per_page": 20,
+                      "total": 1,
+                      "total_pages": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/balance/pricing": {
+      "get": {
+        "operationId": "getPricing",
+        "tags": [
+          "Balance"
+        ],
+        "summary": "Get your pricing",
+        "description": "Returns the pricing configured for your reseller account.",
+        "responses": {
+          "200": {
+            "description": "Pricing retrieved",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "data": {
+                    "residential-lite": {
+                      "billing": "bandwidth",
+                      "price_per_gb_cents": 50
+                    },
+                    "residential": {
+                      "billing": "bandwidth",
+                      "price_per_gb_cents": 300
+                    },
+                    "mobile": {
+                      "billing": "bandwidth",
+                      "price_per_gb_cents": 500
+                    },
+                    "unlimited_residential": {
+                      "billing": "time",
+                      "trial_price_cents": 2000
+                    },
+                    "dedicated_mobile": {
+                      "billing": "time",
+                      "NL": {
+                        "price_per_day_cents": 10000
+                      },
+                      "UK": {
+                        "price_per_day_cents": 12000
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/plans": {
+      "get": {
+        "operationId": "listPlans",
+        "tags": [
+          "Plans"
+        ],
+        "summary": "List all plans",
+        "description": "Returns a paginated list of all your proxy plans.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "expired",
+                "cancelled",
+                "all"
+              ],
+              "default": "all"
+            }
+          },
+          {
+            "name": "product",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "residential-lite",
+                "residential",
+                "mobile",
+                "datacenter",
+                "shared_isp",
+                "ipv6-residential",
+                "ipv6-datacenter",
+                "unlimited_residential",
+                "dedicated_mobile",
+                "dedicated_isp"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Plans retrieved",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "data": {
+                    "items": [
+                      {
+                        "plan_id": "3cd1f4b9-efc3-4252-b9f7-9cebc5236164",
+                        "product": "residential-lite",
+                        "billing_type": "bandwidth",
+                        "proxy_username": "xaGBMTIV",
+                        "proxy_password": "HoLJlh55",
+                        "connection": {
+                          "hostname": "lite.proxyserver.bot",
+                          "port_http": 6969,
+                          "port_socks": 9696,
+                          "format": "xaGBMTIV:HoLJlh55@lite.proxyserver.bot:6969"
+                        },
+                        "limits": {
+                          "max_gb": 10,
+                          "max_bytes": 10000000000,
+                          "bytes_used": 2500000000
+                        },
+                        "expires_at": "2025-02-28T00:00:00.000Z",
+                        "status": "active"
+                      }
+                    ],
+                    "pagination": {
+                      "page": 1,
+                      "per_page": 20,
+                      "total": 1,
+                      "total_pages": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createPlan",
+        "tags": [
+          "Plans"
+        ],
+        "summary": "Create a new plan",
+        "description": "Create a new proxy plan. Required parameters vary by product type.\n\n## Product Requirements\n\n### Bandwidth Products (residential-lite, residential, mobile)\n- Required: `product`, `bandwidth_gb`\n\n### Hybrid Products (datacenter, shared_isp, ipv6_*)\n- Required: `product`, `billing_type`\n- If bandwidth: `bandwidth_gb`\n- If time: `duration`, `mbps`\n\n### Unlimited Residential\n- Trial: `product`, `duration: \"trial\"`\n- Full: `product`, `duration`, `bandwidth_mbps`, `server_spec`\n\n### Dedicated Mobile\n- Required: `product`, `duration`, `location`\n- Check stock first!\n\n### Dedicated ISP (Static IPs)\n- Required: `product`, `quantity`, `pool`\n- **Step 1**: Call `GET /proxies/pools` to see available pools and stock\n- **Step 2**: Create plan with pool name and quantity\n- **Step 3**: Call `GET /plans/{planId}/proxies` to get your static IPs\n- Pricing: Per-IP for 30-day periods (see `price_per_ip_30_days` in your pricing)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePlanRequest"
+              },
+              "examples": {
+                "residential-lite": {
+                  "summary": "Residential Lite - 10GB",
+                  "value": {
+                    "product": "residential-lite",
+                    "bandwidth_gb": 10
+                  }
+                },
+                "residential_with_duration": {
+                  "summary": "Residential Lite - 10GB for 30 days",
+                  "value": {
+                    "product": "residential-lite",
+                    "bandwidth_gb": 10,
+                    "duration": "30_days"
+                  }
+                },
+                "residential": {
+                  "summary": "Residential - 5GB",
+                  "value": {
+                    "product": "residential",
+                    "bandwidth_gb": 5
+                  }
+                },
+                "mobile": {
+                  "summary": "Mobile - 2GB",
+                  "value": {
+                    "product": "mobile",
+                    "bandwidth_gb": 2
+                  }
+                },
+                "datacenter_bandwidth": {
+                  "summary": "Datacenter - 10GB",
+                  "value": {
+                    "product": "datacenter",
+                    "billing_type": "bandwidth",
+                    "bandwidth_gb": 10
+                  }
+                },
+                "datacenter_time": {
+                  "summary": "Datacenter - 100Mbps for 7 days",
+                  "value": {
+                    "product": "datacenter",
+                    "billing_type": "time",
+                    "duration": "7_days",
+                    "mbps": 100
+                  }
+                },
+                "shared_isp": {
+                  "summary": "Shared ISP - 5GB",
+                  "value": {
+                    "product": "shared_isp",
+                    "billing_type": "bandwidth",
+                    "bandwidth_gb": 5
+                  }
+                },
+                "ipv6-residential": {
+                  "summary": "IPv6 Residential - 10GB",
+                  "value": {
+                    "product": "ipv6-residential",
+                    "billing_type": "bandwidth",
+                    "bandwidth_gb": 10
+                  }
+                },
+                "ipv6-datacenter": {
+                  "summary": "IPv6 Datacenter - 20GB",
+                  "value": {
+                    "product": "ipv6-datacenter",
+                    "billing_type": "bandwidth",
+                    "bandwidth_gb": 20
+                  }
+                },
+                "unlimited_trial": {
+                  "summary": "Unlimited Residential Trial ($20, 30 min)",
+                  "value": {
+                    "product": "unlimited_residential",
+                    "duration": "trial"
+                  }
+                },
+                "unlimited_full": {
+                  "summary": "Unlimited Residential - 500Mbps, 30 days",
+                  "value": {
+                    "product": "unlimited_residential",
+                    "duration": "30_days",
+                    "bandwidth_mbps": 500,
+                    "server_spec": "16_32"
+                  }
+                },
+                "dedicated_mobile_nl": {
+                  "summary": "Dedicated Mobile - Netherlands, 7 days",
+                  "value": {
+                    "product": "dedicated_mobile",
+                    "duration": "7_days",
+                    "location": "NL"
+                  }
+                },
+                "dedicated_mobile_uk": {
+                  "summary": "Dedicated Mobile - UK, 30 days",
+                  "value": {
+                    "product": "dedicated_mobile",
+                    "duration": "30_days",
+                    "location": "UK"
+                  }
+                },
+                "dedicated_isp": {
+                  "summary": "Dedicated ISP - 5 IPs from US Sneakers pool",
+                  "value": {
+                    "product": "dedicated_isp",
+                    "quantity": 5,
+                    "pool": "ISP_US_SNEAKERS"
+                  }
+                },
+                "dedicated_isp_general": {
+                  "summary": "Dedicated ISP - 10 IPs from US General pool",
+                  "value": {
+                    "product": "dedicated_isp",
+                    "quantity": 10,
+                    "pool": "ISP_US_GENERAL"
+                  }
+                },
+                "with_reference": {
+                  "summary": "With end-user reference",
+                  "value": {
+                    "product": "residential-lite",
+                    "bandwidth_gb": 10,
+                    "end_user_reference": "customer_12345"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Plan created",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "residential-lite": {
+                    "summary": "Residential Lite created",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "plan_id": "3cd1f4b9-efc3-4252-b9f7-9cebc5236164",
+                        "product": "residential-lite",
+                        "billing_type": "bandwidth",
+                        "proxy_username": "xaGBMTIV",
+                        "proxy_password": "HoLJlh55",
+                        "connection": {
+                          "hostname": "lite.proxyserver.bot",
+                          "port_http": 6969,
+                          "port_socks": 9696,
+                          "format": "xaGBMTIV:HoLJlh55@lite.proxyserver.bot:6969"
+                        },
+                        "limits": {
+                          "max_gb": 10,
+                          "max_bytes": 10000000000,
+                          "bytes_used": 0
+                        },
+                        "expires_at": "2025-02-28T00:00:00.000Z",
+                        "status": "active",
+                        "billing": {
+                          "mode": "price",
+                          "price_per_gb_cents": 50,
+                          "gb_purchased": 10,
+                          "cost_cents": 500,
+                          "cost_formatted": "$5.00"
+                        }
+                      }
+                    }
+                  },
+                  "unlimited_trial": {
+                    "summary": "Unlimited Trial created",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "plan_id": "c54334e0-c431-435b-98a9-dee196887cde",
+                        "product": "unlimited_residential",
+                        "billing_type": "time",
+                        "proxy_username": "flasha9mawv0q",
+                        "proxy_password": "flash96onmbx0",
+                        "connection": {
+                          "hostname": "43.153.88.155",
+                          "port_http": 9999,
+                          "port_socks": null,
+                          "format": "flasha9mawv0q:flash96onmbx0@43.153.88.155:9999"
+                        },
+                        "limits": {
+                          "max_gb": null,
+                          "bytes_used": 0
+                        },
+                        "expires_at": "2025-01-15T10:30:00.000Z",
+                        "status": "active",
+                        "billing": {
+                          "mode": "price",
+                          "cost_cents": 2000,
+                          "cost_formatted": "$20.00"
+                        }
+                      }
+                    }
+                  },
+                  "dedicated_mobile": {
+                    "summary": "Dedicated Mobile created",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "plan_id": "b146c7ec-7e38-4e17-b526-09ba9f757e6e",
+                        "product": "dedicated_mobile",
+                        "billing_type": "time",
+                        "proxy_username": "n77njt",
+                        "proxy_password": "p893yd",
+                        "connection": {
+                          "hostname": "94.130.58.229",
+                          "port_http": 8018,
+                          "port_socks": 5018,
+                          "format": "n77njt:p893yd@94.130.58.229:8018"
+                        },
+                        "limits": {
+                          "max_gb": null,
+                          "bytes_used": 0
+                        },
+                        "location": "NL",
+                        "expires_at": "2025-01-22T10:00:00.000Z",
+                        "status": "active",
+                        "billing": {
+                          "mode": "price",
+                          "cost_cents": 70000,
+                          "cost_formatted": "$700.00"
+                        }
+                      }
+                    }
+                  },
+                  "dedicated_isp": {
+                    "summary": "Dedicated ISP created",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "plan_id": "d8f3a2b1-9c4e-4f5d-a6b7-8c9d0e1f2a3b",
+                        "product": "dedicated_isp",
+                        "billing_type": "time",
+                        "proxy_count": 5,
+                        "pool": "ISP_US_SNEAKERS",
+                        "limits": {
+                          "max_gb": null,
+                          "bytes_used": 0
+                        },
+                        "expires_at": "2025-02-15T10:30:00.000Z",
+                        "status": "active",
+                        "billing": {
+                          "mode": "price",
+                          "price_per_ip_30_days_cents": 500,
+                          "quantity": 5,
+                          "cost_cents": 2500,
+                          "cost_formatted": "$25.00"
+                        },
+                        "message": "Use GET /plans/{planId}/proxies to retrieve your proxy list"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "missing_product": {
+                    "value": {
+                      "success": false,
+                      "error": {
+                        "code": "VALIDATION_ERROR",
+                        "message": "Invalid request parameters",
+                        "details": {
+                          "product": [
+                            "Required"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "invalid_product": {
+                    "value": {
+                      "success": false,
+                      "error": {
+                        "code": "VALIDATION_ERROR",
+                        "message": "Invalid enum value for product"
+                      }
+                    }
+                  },
+                  "missing_bandwidth": {
+                    "value": {
+                      "success": false,
+                      "error": {
+                        "code": "VALIDATION_ERROR",
+                        "message": "bandwidth_gb is required for bandwidth-billed products"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Insufficient balance",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "code": "INSUFFICIENT_BALANCE",
+                    "message": "Insufficient balance. Required: $500.00, Available: $100.00"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Product disabled",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "product_disabled": {
+                    "summary": "Product not enabled",
+                    "value": {
+                      "success": false,
+                      "error": {
+                        "code": "PRODUCT_DISABLED",
+                        "message": "dedicated_isp product is not enabled for your account"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Out of stock",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "out_of_stock": {
+                    "summary": "Product out of stock",
+                    "value": {
+                      "success": false,
+                      "error": {
+                        "code": "OUT_OF_STOCK",
+                        "message": "dedicated_mobile is out of stock in NL"
+                      }
+                    }
+                  },
+                  "pool_out_of_stock": {
+                    "summary": "Pool out of stock (dedicated_isp)",
+                    "value": {
+                      "success": false,
+                      "error": {
+                        "code": "POOL_OUT_OF_STOCK",
+                        "message": "Insufficient stock in pool ISP_US_SNEAKERS. Requested: 10, Available: 5"
+                      }
+                    }
+                  },
+                  "invalid_pool": {
+                    "summary": "Invalid pool name (dedicated_isp)",
+                    "value": {
+                      "success": false,
+                      "error": {
+                        "code": "INVALID_POOL",
+                        "message": "Invalid pool name: INVALID_POOL_NAME. Use GET /proxies/pools to see available pools."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/plans/{planId}": {
+      "get": {
+        "operationId": "getPlan",
+        "tags": [
+          "Plans"
+        ],
+        "summary": "Get a specific plan",
+        "parameters": [
+          {
+            "name": "planId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "3cd1f4b9-efc3-4252-b9f7-9cebc5236164"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Plan retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "cancelPlan",
+        "tags": [
+          "Plans"
+        ],
+        "summary": "Cancel a plan",
+        "description": "Cancel an active plan immediately. No refund will be issued.",
+        "parameters": [
+          {
+            "name": "planId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Plan cancelled",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "data": {
+                    "plan_id": "3cd1f4b9-efc3-4252-b9f7-9cebc5236164",
+                    "status": "cancelled",
+                    "message": "Plan cancelled. No refund issued."
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/plans/{planId}/extend": {
+      "post": {
+        "operationId": "extendPlan",
+        "tags": [
+          "Plans"
+        ],
+        "summary": "Extend a plan",
+        "description": "Add bandwidth or time to an existing plan. Accepted parameters depend on product type: residential/mobile/residential-lite accept add_bandwidth_gb; hybrid products (datacenter/shared_isp/ipv6) accept add_bandwidth_gb and/or add_days; unlimited_residential accepts add_days (1, 7, 30, or 60); dedicated_mobile accepts add_days (7, 14, or 30); dedicated_isp accepts extend_30_days.",
+        "parameters": [
+          {
+            "name": "planId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExtendPlanRequest"
+              },
+              "examples": {
+                "add_bandwidth": {
+                  "summary": "Add 5GB (residential, mobile, residential-lite)",
+                  "value": {
+                    "add_bandwidth_gb": 5
+                  }
+                },
+                "add_days_unlimited": {
+                  "summary": "Add 7 days (unlimited_residential — must be 1, 7, 30, or 60)",
+                  "value": {
+                    "add_days": 7
+                  }
+                },
+                "add_days_dedicated_mobile": {
+                  "summary": "Add 14 days (dedicated_mobile — must be 7, 14, or 30)",
+                  "value": {
+                    "add_days": 14
+                  }
+                },
+                "extend_dedicated_isp": {
+                  "summary": "Extend dedicated ISP by 30 days",
+                  "value": {
+                    "extend_30_days": true
+                  }
+                },
+                "hybrid_both": {
+                  "summary": "Add bandwidth + time to hybrid product",
+                  "value": {
+                    "add_bandwidth_gb": 10,
+                    "add_days": 30
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Plan extended",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "bandwidth": {
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "plan_id": "abc-123",
+                        "cost_cents": 250,
+                        "cost_formatted": "$2.50",
+                        "gb_added": 5,
+                        "new_max_gb": 15
+                      }
+                    }
+                  },
+                  "days": {
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "plan_id": "abc-123",
+                        "cost_cents": 70000,
+                        "cost_formatted": "$700.00",
+                        "days_added": 7,
+                        "new_expires_at": "2025-01-29T10:00:00.000Z"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "402": {
+            "$ref": "#/components/responses/InsufficientBalance"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/plans/{planId}/upgrade": {
+      "post": {
+        "operationId": "upgradePlan",
+        "tags": [
+          "Plans"
+        ],
+        "summary": "Upgrade plan (unlimited_residential only)",
+        "parameters": [
+          {
+            "name": "planId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "bandwidth_mbps": {
+                    "type": "integer",
+                    "enum": [200, 300, 400, 500, 600, 700, 800, 900, 1000]
+                  },
+                  "server_spec": {
+                    "type": "string",
+                    "enum": [
+                      "8_16",
+                      "16_32",
+                      "32_64",
+                      "64_128"
+                    ]
+                  }
+                }
+              },
+              "example": {
+                "bandwidth_mbps": 1000,
+                "server_spec": "32_64"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Plan upgraded"
+          },
+          "400": {
+            "description": "Invalid upgrade"
+          },
+          "402": {
+            "$ref": "#/components/responses/InsufficientBalance"
+          }
+        }
+      }
+    },
+    "/plans/{planId}/password": {
+      "put": {
+        "operationId": "updatePlanPassword",
+        "tags": [
+          "Plans"
+        ],
+        "summary": "Update plan password",
+        "parameters": [
+          {
+            "name": "planId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "new_password"
+                ],
+                "properties": {
+                  "new_password": {
+                    "type": "string",
+                    "minLength": 6,
+                    "maxLength": 32,
+                    "pattern": "^[a-zA-Z0-9]+$"
+                  }
+                }
+              },
+              "example": {
+                "new_password": "MyNewPass123"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password updated",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "data": {
+                    "plan_id": "abc-123",
+                    "proxy_username": "xaGBMTIV",
+                    "proxy_password": "MyNewPass123"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/plans/{planId}/usage": {
+      "get": {
+        "operationId": "getPlanUsage",
+        "tags": [
+          "Plans"
+        ],
+        "summary": "Get plan usage",
+        "parameters": [
+          {
+            "name": "planId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usage retrieved",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "data": {
+                    "plan_id": "abc-123",
+                    "usage": {
+                      "bytes_used": 2500000000,
+                      "bytes_remaining": 7500000000,
+                      "max_bytes": 10000000000,
+                      "usage_percent": 25
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/plans/{planId}/proxies": {
+      "get": {
+        "operationId": "getPlanProxies",
+        "tags": [
+          "Plans"
+        ],
+        "summary": "Get proxy list (dedicated ISP only)",
+        "description": "Retrieve the list of static IPs for a dedicated_isp plan. This is the final step in the Dedicated ISP purchase flow.\n\n## Response Details\n\n- Returns individual proxy credentials with host, port, username, and password\n- The `full` field provides a ready-to-use connection string\n- The `source` field indicates whether data came from the provider (`provider`) or cache (`cached`)\n\n## Notes\n\n- Only works for `dedicated_isp` product plans\n- Proxies are static and don't change for the duration of the plan\n- Plans are billed per-IP for 30-day periods",
+        "parameters": [
+          {
+            "name": "planId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The plan ID returned when creating the dedicated_isp plan"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Proxy list retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxyListResponse"
+                },
+                "examples": {
+                  "proxy_list": {
+                    "summary": "Successful proxy list",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "plan_id": "b146c7ec-7e38-4e17-b526-09ba9f757e6e",
+                        "product": "dedicated_isp",
+                        "proxies": [
+                          {
+                            "host": "isp.proxyserver.bot",
+                            "port": 10001,
+                            "username": "user_abc123",
+                            "password": "pass_xyz789",
+                            "full": "user_abc123:pass_xyz789@isp.proxyserver.bot:10001"
+                          },
+                          {
+                            "host": "isp.proxyserver.bot",
+                            "port": 10002,
+                            "username": "user_abc123",
+                            "password": "pass_xyz789",
+                            "full": "user_abc123:pass_xyz789@isp.proxyserver.bot:10002"
+                          },
+                          {
+                            "host": "isp.proxyserver.bot",
+                            "port": 10003,
+                            "username": "user_abc123",
+                            "password": "pass_xyz789",
+                            "full": "user_abc123:pass_xyz789@isp.proxyserver.bot:10003"
+                          },
+                          {
+                            "host": "isp.proxyserver.bot",
+                            "port": 10004,
+                            "username": "user_abc123",
+                            "password": "pass_xyz789",
+                            "full": "user_abc123:pass_xyz789@isp.proxyserver.bot:10004"
+                          },
+                          {
+                            "host": "isp.proxyserver.bot",
+                            "port": 10005,
+                            "username": "user_abc123",
+                            "password": "pass_xyz789",
+                            "full": "user_abc123:pass_xyz789@isp.proxyserver.bot:10005"
+                          }
+                        ],
+                        "count": 5,
+                        "source": "provider"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid product type",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "code": "INVALID_OPERATION",
+                    "message": "Proxy list only available for dedicated_isp plans"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/servers/stock/dedicated-mobile": {
+      "get": {
+        "operationId": "getDedicatedMobileStock",
+        "tags": [
+          "Stock"
+        ],
+        "summary": "Check dedicated mobile stock",
+        "description": "Check availability of dedicated mobile proxies. Always check before purchasing!",
+        "responses": {
+          "200": {
+            "description": "Stock info",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "in_stock": {
+                    "summary": "In stock",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "NL": {
+                          "available": 19,
+                          "in_stock": true,
+                          "price_per_day_cents": 10000
+                        },
+                        "UK": {
+                          "available": 15,
+                          "in_stock": true,
+                          "price_per_day_cents": 12000
+                        },
+                        "total_available": 34
+                      }
+                    }
+                  },
+                  "out_of_stock": {
+                    "summary": "Out of stock",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "NL": {
+                          "available": 0,
+                          "in_stock": false
+                        },
+                        "UK": {
+                          "available": 0,
+                          "in_stock": false
+                        },
+                        "total_available": 0
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/servers/stock/unlimited-residential-trial": {
+      "get": {
+        "operationId": "getTrialStock",
+        "tags": [
+          "Stock"
+        ],
+        "summary": "Check trial availability",
+        "description": "Check if trial servers are available for unlimited residential trials.",
+        "responses": {
+          "200": {
+            "description": "Trial availability",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "available": {
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "available": 1,
+                        "in_stock": true,
+                        "price_cents": 2000,
+                        "duration_minutes": 30
+                      }
+                    }
+                  },
+                  "busy": {
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "available": 0,
+                        "in_stock": false,
+                        "message": "All trial servers in use"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/servers/{planId}/ip": {
+      "get": {
+        "operationId": "getServerIp",
+        "tags": [
+          "Servers"
+        ],
+        "summary": "Get server IP (unlimited_residential)",
+        "description": "Get actual IP of unlimited_residential server. Wait 30-60 seconds after purchase.",
+        "parameters": [
+          {
+            "name": "planId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Server IP",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "data": {
+                    "plan_id": "abc-123",
+                    "real_ip": "43.153.88.155",
+                    "port": 9999
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Server provisioning",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "code": "SERVER_PROVISIONING",
+                    "message": "Server still provisioning. Try again in 30 seconds."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/servers/{planId}/stats": {
+      "get": {
+        "operationId": "getServerStats",
+        "tags": [
+          "Servers"
+        ],
+        "summary": "Get server statistics",
+        "parameters": [
+          {
+            "name": "planId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Server stats",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "data": {
+                    "server": {
+                      "status": "running",
+                      "uptime_seconds": 86400
+                    },
+                    "resources": {
+                      "cpu_percent": 25.5,
+                      "memory_used_mb": 4096,
+                      "memory_total_mb": 32768
+                    },
+                    "network": {
+                      "bytes_in": 1500000000,
+                      "bytes_out": 500000000,
+                      "current_mbps": 150
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/servers/{planId}/monitoring": {
+      "get": {
+        "operationId": "getServerMonitoring",
+        "tags": [
+          "Servers"
+        ],
+        "summary": "Get monitoring details",
+        "parameters": [
+          {
+            "name": "planId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Monitoring info"
+          }
+        }
+      }
+    },
+    "/servers/{planId}/restart": {
+      "post": {
+        "operationId": "restartServer",
+        "tags": [
+          "Servers"
+        ],
+        "summary": "Restart server",
+        "description": "Restart unlimited_residential or dedicated_mobile server. 1-3 min downtime.",
+        "parameters": [
+          {
+            "name": "planId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Restart initiated",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "data": {
+                    "plan_id": "abc-123",
+                    "message": "Server restart initiated. 1-3 minutes downtime."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/servers/{planId}/rotate-ip": {
+      "post": {
+        "operationId": "rotateIp",
+        "tags": [
+          "Servers"
+        ],
+        "summary": "Rotate IP (dedicated_mobile only)",
+        "description": "Get new IP for dedicated mobile proxy. New IP in 10-30 seconds.",
+        "parameters": [
+          {
+            "name": "planId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rotation initiated",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "data": {
+                    "plan_id": "abc-123",
+                    "message": "IP rotation initiated. New IP in 10-30 seconds."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid operation or rate limited",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "wrong_product": {
+                    "value": {
+                      "success": false,
+                      "error": {
+                        "code": "INVALID_OPERATION",
+                        "message": "IP rotation only for dedicated_mobile"
+                      }
+                    }
+                  },
+                  "rate_limited": {
+                    "value": {
+                      "success": false,
+                      "error": {
+                        "code": "RATE_LIMITED",
+                        "message": "Wait 30 seconds between rotations"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/geo/countries": {
+      "get": {
+        "operationId": "getCountries",
+        "tags": [
+          "Geo"
+        ],
+        "summary": "Get available countries",
+        "description": "Get countries for geo-targeting. Use in username: `user-country-US`",
+        "parameters": [
+          {
+            "name": "product_type",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "residential",
+                "residential-lite",
+                "mobile",
+                "datacenter",
+                "shared_isp",
+                "ipv6-residential",
+                "ipv6-datacenter"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Countries",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "data": {
+                    "product_type": "residential",
+                    "total": 195,
+                    "countries": [
+                      {
+                        "name": "United States",
+                        "iso_code": "US"
+                      },
+                      {
+                        "name": "United Kingdom",
+                        "iso_code": "GB"
+                      },
+                      {
+                        "name": "Germany",
+                        "iso_code": "DE"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/geo/states": {
+      "get": {
+        "operationId": "getStates",
+        "tags": [
+          "Geo"
+        ],
+        "summary": "Get states for country",
+        "description": "Get states for geo-targeting. Use: `user-country-US-state-CA`",
+        "parameters": [
+          {
+            "name": "product_type",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "country_code",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "US"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "States",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "data": {
+                    "country_code": "US",
+                    "states": [
+                      {
+                        "name": "California",
+                        "state_code": "CA"
+                      },
+                      {
+                        "name": "New York",
+                        "state_code": "NY"
+                      },
+                      {
+                        "name": "Texas",
+                        "state_code": "TX"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/geo/cities": {
+      "get": {
+        "operationId": "getCities",
+        "tags": [
+          "Geo"
+        ],
+        "summary": "Get cities for state",
+        "description": "Get cities for geo-targeting. Use: `user-country-US-state-CA-city-losangeles`",
+        "parameters": [
+          {
+            "name": "product_type",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "country_code",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state_code",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cities",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "data": {
+                    "cities": [
+                      {
+                        "name": "Los Angeles",
+                        "city_code": "losangeles"
+                      },
+                      {
+                        "name": "San Francisco",
+                        "city_code": "sanfrancisco"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/geo/asn": {
+      "get": {
+        "operationId": "getAsns",
+        "tags": [
+          "Geo"
+        ],
+        "summary": "Get ASNs (mobile only)",
+        "description": "Get ASNs for mobile targeting. Use: `user-country-US-asn-7922`",
+        "parameters": [
+          {
+            "name": "country_code",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "product_type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "mobile"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ASNs",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "data": {
+                    "asns": [
+                      {
+                        "asn": "7922",
+                        "name": "Comcast"
+                      },
+                      {
+                        "asn": "22394",
+                        "name": "Verizon Wireless"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/usage/summary": {
+      "get": {
+        "operationId": "getUsageSummary",
+        "tags": [
+          "Usage"
+        ],
+        "summary": "Get usage summary",
+        "parameters": [
+          {
+            "name": "period",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "today",
+                "week",
+                "month",
+                "all"
+              ],
+              "default": "month"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usage summary",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "data": {
+                    "total_bytes_used": 50000000000,
+                    "total_bytes_formatted": "50 GB",
+                    "by_product": {
+                      "residential-lite": {
+                        "bytes_used": 30000000000,
+                        "plans_count": 5
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/usage/plans/{planId}": {
+      "get": {
+        "operationId": "getPlanUsageDetailed",
+        "tags": [
+          "Usage"
+        ],
+        "summary": "Get detailed plan usage",
+        "parameters": [
+          {
+            "name": "planId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "granularity",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hourly",
+                "daily",
+                "weekly"
+              ],
+              "default": "daily"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detailed usage"
+          }
+        }
+      }
+    },
+    "/usage/realtime": {
+      "get": {
+        "operationId": "getRealtimeUsage",
+        "tags": [
+          "Usage"
+        ],
+        "summary": "Get real-time usage",
+        "responses": {
+          "200": {
+            "description": "Real-time usage"
+          }
+        }
+      }
+    },
+    "/proxies/stock": {
+      "get": {
+        "operationId": "getProxyStock",
+        "tags": [
+          "Proxies"
+        ],
+        "summary": "Get proxy pool stats",
+        "responses": {
+          "200": {
+            "description": "Pool stats",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "data": {
+                    "residential": {
+                      "total_ips": 5000000,
+                      "countries": 195,
+                      "status": "healthy"
+                    },
+                    "mobile": {
+                      "total_ips": 500000,
+                      "countries": 45,
+                      "status": "healthy"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/proxies/pools": {
+      "get": {
+        "operationId": "getIspPools",
+        "tags": [
+          "Proxies"
+        ],
+        "summary": "Get available ISP pools (Dedicated ISP only)",
+        "description": "Returns available ISP and subnet pools for the dedicated_isp product. This is the first step in the Dedicated ISP purchase flow.\n\n## Dedicated ISP Purchase Flow\n\n1. **GET /proxies/pools** - List available pools and check stock\n2. **POST /plans** - Create plan with `product: dedicated_isp`, `quantity`, and `pool`\n3. **GET /plans/{planId}/proxies** - Retrieve your static IP list\n\n## Pool Types\n\n- **ISP pools** (`type=isp`): Standard ISP IPs for general use\n- **Subnet pools** (`type=subnet`): /24 subnet blocks for advanced use cases",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Filter by pool type",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "isp",
+                "subnet"
+              ]
+            }
+          },
+          {
+            "name": "country",
+            "in": "query",
+            "description": "Filter by country code (e.g., US, UK, DE)",
+            "schema": {
+              "type": "string"
+            },
+            "example": "US"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pool list retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PoolListResponse"
+                },
+                "examples": {
+                  "all_pools": {
+                    "summary": "All available pools",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "pools": [
+                          {
+                            "pool": "ISP_US_SNEAKERS",
+                            "inStock": true,
+                            "stock": 150,
+                            "title": "US Sneakers ISP",
+                            "provider": "ISP",
+                            "isSubnet": false
+                          },
+                          {
+                            "pool": "ISP_US_GENERAL",
+                            "inStock": true,
+                            "stock": 500,
+                            "title": "US General ISP",
+                            "provider": "ISP",
+                            "isSubnet": false
+                          },
+                          {
+                            "pool": "ISP_UK_GENERAL",
+                            "inStock": true,
+                            "stock": 200,
+                            "title": "UK General ISP",
+                            "provider": "ISP",
+                            "isSubnet": false
+                          },
+                          {
+                            "pool": "ISP_DE_GENERAL",
+                            "inStock": false,
+                            "stock": 0,
+                            "title": "Germany General ISP",
+                            "provider": "ISP",
+                            "isSubnet": false
+                          },
+                          {
+                            "pool": "SN_US_BLOCK",
+                            "inStock": true,
+                            "stock": 10,
+                            "title": "US /24 Subnet Block",
+                            "provider": "SN",
+                            "isSubnet": true
+                          }
+                        ],
+                        "total": 5,
+                        "in_stock_count": 4
+                      }
+                    }
+                  },
+                  "isp_only": {
+                    "summary": "ISP pools only (type=isp)",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "pools": [
+                          {
+                            "pool": "ISP_US_SNEAKERS",
+                            "inStock": true,
+                            "stock": 150,
+                            "title": "US Sneakers ISP",
+                            "provider": "ISP",
+                            "isSubnet": false
+                          },
+                          {
+                            "pool": "ISP_US_GENERAL",
+                            "inStock": true,
+                            "stock": 500,
+                            "title": "US General ISP",
+                            "provider": "ISP",
+                            "isSubnet": false
+                          }
+                        ],
+                        "total": 2,
+                        "in_stock_count": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Product disabled",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "code": "PRODUCT_DISABLED",
+                    "message": "dedicated_isp product is not enabled for your account"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/proxies/connection-info": {
+      "get": {
+        "operationId": "getConnectionInfo",
+        "tags": [
+          "Proxies"
+        ],
+        "summary": "Get connection info",
+        "responses": {
+          "200": {
+            "description": "Connection info",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "data": {
+                    "residential-lite": {
+                      "hostname": "lite.proxyserver.bot",
+                      "port_http": 6969,
+                      "port_socks": 9696
+                    },
+                    "residential": {
+                      "hostname": "geo.proxyserver.bot",
+                      "port_http": 8080,
+                      "port_socks": 1080
+                    },
+                    "datacenter": {
+                      "hostname": "v3-dc.proxyserver.bot",
+                      "port_http": 777,
+                      "port_socks": 666
+                    },
+                    "mobile": {
+                      "hostname": "geo.proxyserver.bot",
+                      "port_http": 8080,
+                      "port_socks": 1080
+                    },
+                    "shared_isp": {
+                      "hostname": "v3-isp.proxyserver.bot",
+                      "port_http": 30,
+                      "port_socks": 31
+                    },
+                    "ipv6-residential": {
+                      "hostname": "v3-v6-resi.proxyserver.bot",
+                      "port_http": 30,
+                      "port_socks": 31
+                    },
+                    "ipv6-datacenter": {
+                      "hostname": "v3-v6-dc.proxyserver.bot",
+                      "port_http": 50,
+                      "port_socks": 51
+                    },
+                    "unlimited_residential": {
+                      "hostname": "\u003CSERVER_IP\u003E",
+                      "port_http": 9999
+                    },
+                    "dedicated_mobile": {
+                      "hostname": "\u003CSERVER_IP\u003E",
+                      "port_http": "\u003CCUSTOM_PORT\u003E"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/proxies/{planId}/vpn-config": {
+      "get": {
+        "operationId": "getVpnConfig",
+        "tags": [
+          "Proxies"
+        ],
+        "summary": "Get VPN config",
+        "parameters": [
+          {
+            "name": "planId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ovpn",
+                "wireguard"
+              ],
+              "default": "ovpn"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "VPN config"
+          }
+        }
+      }
+    },
+    "/proxies/{planId}/ip-reset-link": {
+      "get": {
+        "operationId": "getIpResetLink",
+        "tags": [
+          "Proxies"
+        ],
+        "summary": "Get IP reset link",
+        "parameters": [
+          {
+            "name": "planId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reset link",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "data": {
+                    "reset_link": "https://flashproxy.io/rotate/abc?token=xyz",
+                    "expires_at": "2025-01-15T18:00:00.000Z"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sub-users": {
+      "get": {
+        "operationId": "listSubUsers",
+        "tags": [
+          "Sub-Users"
+        ],
+        "summary": "List sub-users",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "suspended",
+                "all"
+              ],
+              "default": "all"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sub-users list"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createSubUser",
+        "tags": [
+          "Sub-Users"
+        ],
+        "summary": "Create sub-user",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "name"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "initial_balance_cents": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              },
+              "example": {
+                "email": "customer@example.com",
+                "name": "John Doe",
+                "initial_balance_cents": 10000
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Sub-user created",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "data": {
+                    "id": "sub_abc123",
+                    "email": "customer@example.com",
+                    "api_key": "fp_sub_xxxx"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sub-users/{id}": {
+      "get": {
+        "operationId": "getSubUser",
+        "tags": [
+          "Sub-Users"
+        ],
+        "summary": "Get sub-user",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sub-user details"
+          }
+        }
+      },
+      "put": {
+        "operationId": "updateSubUser",
+        "tags": [
+          "Sub-Users"
+        ],
+        "summary": "Update sub-user",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "active",
+                      "suspended"
+                    ]
+                  },
+                  "add_balance_cents": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sub-user updated"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "API_KEY",
+        "description": "API key starting with `fp_live_` (production) or `fp_test_` (sandbox)"
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Unauthorized",
+        "content": {
+          "application/json": {
+            "example": {
+              "success": false,
+              "error": {
+                "code": "UNAUTHORIZED",
+                "message": "Invalid or missing API key"
+              }
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Not found",
+        "content": {
+          "application/json": {
+            "example": {
+              "success": false,
+              "error": {
+                "code": "NOT_FOUND",
+                "message": "Resource not found"
+              }
+            }
+          }
+        }
+      },
+      "InsufficientBalance": {
+        "description": "Insufficient balance",
+        "content": {
+          "application/json": {
+            "example": {
+              "success": false,
+              "error": {
+                "code": "INSUFFICIENT_BALANCE",
+                "message": "Insufficient balance"
+              }
+            }
+          }
+        }
+      },
+      "ValidationError": {
+        "description": "Validation error",
+        "content": {
+          "application/json": {
+            "example": {
+              "success": false,
+              "error": {
+                "code": "VALIDATION_ERROR",
+                "message": "Invalid parameters",
+                "details": {
+
+                }
+              }
+            }
+          }
+        }
+      },
+      "ProductDisabled": {
+        "description": "Product not enabled for account",
+        "content": {
+          "application/json": {
+            "example": {
+              "success": false,
+              "error": {
+                "code": "PRODUCT_DISABLED",
+                "message": "This product is not enabled for your account"
+              }
+            }
+          }
+        }
+      },
+      "InvalidPool": {
+        "description": "Invalid pool name (dedicated_isp)",
+        "content": {
+          "application/json": {
+            "example": {
+              "success": false,
+              "error": {
+                "code": "INVALID_POOL",
+                "message": "Invalid pool name. Use GET /proxies/pools to see available pools."
+              }
+            }
+          }
+        }
+      },
+      "PoolOutOfStock": {
+        "description": "Insufficient stock in pool (dedicated_isp)",
+        "content": {
+          "application/json": {
+            "example": {
+              "success": false,
+              "error": {
+                "code": "POOL_OUT_OF_STOCK",
+                "message": "Insufficient stock in pool. Check GET /proxies/pools for current availability."
+              }
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "BalanceResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "balance_cents": {
+                "type": "integer",
+                "description": "Balance in cents",
+                "example": 500000
+              },
+              "balance_formatted": {
+                "type": "string",
+                "example": "$5,000.00"
+              },
+              "allocations": {
+                "type": "object",
+                "properties": {
+                  "residential": {
+                    "$ref": "#/components/schemas/Allocation"
+                  },
+                  "residential-lite": {
+                    "$ref": "#/components/schemas/Allocation"
+                  },
+                  "mobile": {
+                    "$ref": "#/components/schemas/Allocation"
+                  }
+                }
+              },
+              "total_spent_cents": {
+                "type": "integer"
+              },
+              "total_spent_formatted": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "Allocation": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "gb_remaining": {
+            "type": "number"
+          },
+          "bytes_remaining": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "PlanResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Plan"
+          }
+        }
+      },
+      "Plan": {
+        "type": "object",
+        "properties": {
+          "plan_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique plan ID"
+          },
+          "product": {
+            "type": "string",
+            "enum": [
+              "residential-lite",
+              "residential",
+              "mobile",
+              "datacenter",
+              "shared_isp",
+              "ipv6-residential",
+              "ipv6-datacenter",
+              "unlimited_residential",
+              "dedicated_mobile",
+              "dedicated_isp"
+            ],
+            "description": "Product type"
+          },
+          "billing_type": {
+            "type": "string",
+            "enum": [
+              "bandwidth",
+              "time"
+            ],
+            "description": "Billing method"
+          },
+          "proxy_username": {
+            "type": "string",
+            "description": "Proxy authentication username"
+          },
+          "proxy_password": {
+            "type": "string",
+            "description": "Proxy authentication password"
+          },
+          "connection": {
+            "type": "object",
+            "description": "Connection details",
+            "properties": {
+              "hostname": {
+                "type": "string",
+                "description": "Proxy server hostname"
+              },
+              "port_http": {
+                "type": "integer",
+                "description": "HTTP port"
+              },
+              "port_socks": {
+                "type": "integer",
+                "nullable": true,
+                "description": "SOCKS5 port"
+              },
+              "format": {
+                "type": "string",
+                "description": "Ready-to-use connection string"
+              }
+            }
+          },
+          "limits": {
+            "type": "object",
+            "description": "Usage limits",
+            "properties": {
+              "max_gb": {
+                "type": "number",
+                "nullable": true,
+                "description": "Max GB (null = unlimited)"
+              },
+              "max_bytes": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true
+              },
+              "bytes_used": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Bytes consumed"
+              },
+              "bandwidth_mbps": {
+                "type": "integer",
+                "nullable": true,
+                "description": "Mbps cap"
+              }
+            }
+          },
+          "location": {
+            "type": "string",
+            "nullable": true,
+            "description": "Location (dedicated_mobile)"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "expired",
+              "cancelled"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "billing": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string"
+              },
+              "price_per_gb_cents": {
+                "type": "integer"
+              },
+              "cost_cents": {
+                "type": "integer"
+              },
+              "cost_formatted": {
+                "type": "string"
+              }
+            }
+          },
+          "end_user_reference": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreatePlanRequest": {
+        "type": "object",
+        "required": [
+          "product"
+        ],
+        "properties": {
+          "product": {
+            "type": "string",
+            "enum": [
+              "residential-lite",
+              "residential",
+              "mobile",
+              "datacenter",
+              "shared_isp",
+              "ipv6-residential",
+              "ipv6-datacenter",
+              "unlimited_residential",
+              "dedicated_mobile",
+              "dedicated_isp"
+            ],
+            "description": "Product type to purchase"
+          },
+          "bandwidth_gb": {
+            "type": "number",
+            "minimum": 0.1,
+            "description": "GB to purchase (required for bandwidth products)"
+          },
+          "duration": {
+            "type": "string",
+            "enum": [
+              "trial",
+              "1_hour",
+              "1_day",
+              "7_days",
+              "14_days",
+              "30_days",
+              "60_days",
+              "90_days"
+            ],
+            "description": "Plan duration (required for time products). 1_hour available for datacenter, shared_isp, ipv6-residential, ipv6-datacenter (priced at 1/8 of daily rate). trial only for unlimited_residential."
+          },
+          "billing_type": {
+            "type": "string",
+            "enum": [
+              "bandwidth",
+              "time"
+            ],
+            "description": "Billing type (required for hybrid products)"
+          },
+          "mbps": {
+            "type": "integer",
+            "minimum": 10,
+            "maximum": 10000,
+            "description": "Mbps for time-billed hybrid products"
+          },
+          "bandwidth_mbps": {
+            "type": "integer",
+            "enum": [200, 300, 400, 500, 600, 700, 800, 900, 1000],
+            "description": "Bandwidth cap for unlimited_residential (non-trial)"
+          },
+          "server_spec": {
+            "type": "string",
+            "enum": [
+              "8_16",
+              "16_32",
+              "32_64",
+              "64_128"
+            ],
+            "description": "Server spec for unlimited_residential: cores_memoryGB"
+          },
+          "location": {
+            "type": "string",
+            "enum": [
+              "NL",
+              "UK"
+            ],
+            "description": "Location for dedicated_mobile (check stock first!)"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Number of IPs to purchase (required for dedicated_isp)"
+          },
+          "pool": {
+            "type": "string",
+            "description": "Pool name from GET /proxies/pools (required for dedicated_isp). Example: ISP_US_SNEAKERS"
+          },
+          "end_user_reference": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Your reference ID"
+          }
+        }
+      },
+      "ExtendPlanRequest": {
+        "type": "object",
+        "description": "Extend a plan. Accepted parameters depend on product type: residential/mobile/residential-lite (add_bandwidth_gb), hybrid products (add_bandwidth_gb and/or add_days), unlimited_residential (add_days: 1/7/30/60), dedicated_mobile (add_days: 7/14/30), dedicated_isp (extend_30_days).",
+        "properties": {
+          "add_bandwidth_gb": {
+            "type": "number",
+            "minimum": 0.1,
+            "maximum": 10000,
+            "description": "GB to add. For: residential-lite, residential, mobile, bandwidth-billed hybrid products."
+          },
+          "add_days": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 365,
+            "description": "Days to add. For unlimited_residential: must be 1, 7, 30, or 60. For dedicated_mobile: must be 7, 14, or 30. For hybrid products: any positive integer."
+          },
+          "extend_30_days": {
+            "type": "boolean",
+            "description": "Set to true to extend dedicated_isp by 30 days. Cost = number_of_IPs × price_per_ip_30_days."
+          }
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer"
+          },
+          "per_page": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer"
+          },
+          "total_pages": {
+            "type": "integer"
+          }
+        }
+      },
+      "Pool": {
+        "type": "object",
+        "description": "ISP pool information for dedicated_isp product",
+        "properties": {
+          "pool": {
+            "type": "string",
+            "description": "Pool identifier to use when creating a plan",
+            "example": "ISP_US_SNEAKERS"
+          },
+          "inStock": {
+            "type": "boolean",
+            "description": "Whether the pool has available stock"
+          },
+          "stock": {
+            "type": "integer",
+            "description": "Number of available IPs in the pool"
+          },
+          "title": {
+            "type": "string",
+            "description": "Human-readable pool name",
+            "example": "US Sneakers ISP"
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "ISP",
+              "SN"
+            ],
+            "description": "Pool type: ISP for standard pools, SN for subnet pools"
+          },
+          "isSubnet": {
+            "type": "boolean",
+            "description": "Whether this is a subnet pool (/24 blocks)"
+          }
+        },
+        "required": [
+          "pool",
+          "inStock",
+          "stock",
+          "title",
+          "provider"
+        ]
+      },
+      "PoolListResponse": {
+        "type": "object",
+        "description": "Response for GET /proxies/pools",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "pools": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Pool"
+                }
+              },
+              "total": {
+                "type": "integer",
+                "description": "Total number of pools returned"
+              },
+              "in_stock_count": {
+                "type": "integer",
+                "description": "Number of pools with available stock"
+              }
+            }
+          }
+        }
+      },
+      "ProxyItem": {
+        "type": "object",
+        "description": "Individual proxy credentials for dedicated_isp",
+        "properties": {
+          "host": {
+            "type": "string",
+            "description": "Proxy server hostname",
+            "example": "isp.proxyserver.bot"
+          },
+          "port": {
+            "type": "integer",
+            "description": "Proxy port number",
+            "example": 10001
+          },
+          "username": {
+            "type": "string",
+            "description": "Proxy authentication username",
+            "example": "user_abc123"
+          },
+          "password": {
+            "type": "string",
+            "description": "Proxy authentication password",
+            "example": "pass_xyz789"
+          },
+          "full": {
+            "type": "string",
+            "description": "Ready-to-use proxy connection string",
+            "example": "user_abc123:pass_xyz789@isp.proxyserver.bot:10001"
+          }
+        },
+        "required": [
+          "host",
+          "port",
+          "username",
+          "password",
+          "full"
+        ]
+      },
+      "ProxyListResponse": {
+        "type": "object",
+        "description": "Response for GET /plans/{planId}/proxies",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "plan_id": {
+                "type": "string",
+                "format": "uuid",
+                "description": "The plan ID"
+              },
+              "product": {
+                "type": "string",
+                "enum": [
+                  "dedicated_isp"
+                ],
+                "description": "Product type (always dedicated_isp)"
+              },
+              "proxies": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ProxyItem"
+                },
+                "description": "List of proxy credentials"
+              },
+              "count": {
+                "type": "integer",
+                "description": "Total number of proxies in the plan"
+              },
+              "source": {
+                "type": "string",
+                "enum": [
+                  "provider",
+                  "cached"
+                ],
+                "description": "Data source: 'provider' for fresh data, 'cached' if provider unavailable"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

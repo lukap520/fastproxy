@@ -43,8 +43,20 @@ type Plan = {
 };
 
 const DURATIONS = [
-    { id: "1_hour", label: "1 Hour" }, { id: "1_day", label: "1 Day" },
-    { id: "7_days", label: "7 Days" }, { id: "30_days", label: "30 Days" },
+    { id: "1_day", label: "1 Day" }, { id: "7_days", label: "7 Days" },
+    { id: "30_days", label: "30 Days" }, { id: "60_days", label: "60 Days" },
+];
+
+const PRICING_TABLE = [
+    { speed: 200, "1_day": 491.10, "7_days": 914.25, "30_days": 1917.53, "60_days": 3126.35 },
+    { speed: 300, "1_day": 508.17, "7_days": 960.24, "30_days": 2216.46, "60_days": 3764.37 },
+    { speed: 400, "1_day": 523.94, "7_days": 1053.48, "30_days": 2614.81, "60_days": 4563.10 },
+    { speed: 500, "1_day": 535.46, "7_days": 1132.57, "30_days": 2953.59, "60_days": 5238.97 },
+    { speed: 600, "1_day": 544.90, "7_days": 1196.03, "30_days": 3230.42, "60_days": 5808.30 },
+    { speed: 700, "1_day": 554.10, "7_days": 1246.32, "30_days": 3469.17, "60_days": 6221.37 },
+    { speed: 800, "1_day": 559.35, "7_days": 1282.80, "30_days": 3586.69, "60_days": 6528.49 },
+    { speed: 900, "1_day": 567.54, "7_days": 1334.99, "30_days": 3838.01, "60_days": 6969.71 },
+    { speed: 1000, "1_day": 573.00, "7_days": 1368.72, "30_days": 3966.02, "60_days": 7265.54 },
 ];
 
 export default function UnlimitedResidentialPage() {
@@ -55,8 +67,8 @@ export default function UnlimitedResidentialPage() {
     const { data: plans, isLoading: plansLoading, refetch } = trpc.flashproxy.listPlans.useQuery({ product: "unlimited_residential", status: "active" });
     const toast = useToast();
 
-    const [duration, setDuration] = useState<"1_hour" | "1_day" | "7_days" | "30_days">("7_days");
-    const [mbps, setMbps] = useState(50);
+    const [duration, setDuration] = useState<"1_day" | "7_days" | "30_days" | "60_days">("7_days");
+    const [mbps, setMbps] = useState(200);
     const [quantity, setQuantity] = useState(10);
     const [country, setCountry] = useState("any");
     const [copiedAll, setCopiedAll] = useState(false);
@@ -139,20 +151,6 @@ export default function UnlimitedResidentialPage() {
                                         Expires {new Date(activePlan.expires_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                                     </p>
                                 )}
-                            </div>
-                        </motion.div>
-
-                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-                            style={{ borderRadius: 16, background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.055)", overflow: "hidden" }}>
-                            <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                                <span style={{ fontSize: 13.5, fontWeight: 700, color: "#FFFFFF", fontFamily: "var(--font-sans,system-ui)" }}>Credentials</span>
-                            </div>
-                            <div style={{ padding: "16px 20px", display: "flex", flexDirection: "column", gap: 8 }}>
-                                <CredentialRow label="Username" value={activePlan.proxy_username} mono />
-                                <CredentialRow label="Password" value={activePlan.proxy_password} mono />
-                                <CredentialRow label="Host (HTTP)" value={`${activePlan.connection.hostname}:${activePlan.connection.port_http}`} mono />
-                                {activePlan.connection.port_socks && <CredentialRow label="Host (SOCKS5)" value={`${activePlan.connection.hostname}:${activePlan.connection.port_socks}`} mono />}
-                                <CredentialRow label="Full String" value={activePlan.connection.format} mono />
                             </div>
                         </motion.div>
 
@@ -270,7 +268,7 @@ export default function UnlimitedResidentialPage() {
                                     {DURATIONS.map(d => {
                                         const on = duration === d.id;
                                         return (
-                                            <button key={d.id} type="button" onClick={() => setDuration(d.id as "1_hour" | "1_day" | "7_days" | "30_days")}
+                                            <button key={d.id} type="button" onClick={() => setDuration(d.id as "1_day" | "7_days" | "30_days" | "60_days")}
                                                 style={{ padding: "9px", borderRadius: 9, border: on ? "1px solid rgba(255,107,0,0.4)" : "1px solid rgba(255,255,255,0.06)", background: on ? "rgba(255,107,0,0.08)" : "rgba(255,255,255,0.018)", color: on ? "rgb(255,107,0)" : "rgba(255,255,255,0.7)", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
                                                 {d.label}
                                             </button>
@@ -280,14 +278,44 @@ export default function UnlimitedResidentialPage() {
                             </div>
                             <div>
                                 <p style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.7)", marginBottom: 8, fontFamily: "var(--font-sans,system-ui)" }}>Speed (Mbps)</p>
-                                <input type="number" min="1" max="1000" step="5" value={mbps} onChange={e => setMbps(parseInt(e.target.value) || 50)}
+                                <input type="number" min="200" max="1000" step="100" value={mbps} onChange={e => setMbps(Math.max(200, parseInt(e.target.value) || 200))}
                                     style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)", color: "rgba(255,255,255,0.8)", fontSize: 13, outline: "none" }} />
-                                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", marginTop: 6, fontFamily: "var(--font-sans,system-ui)" }}>Unlimited data at this speed for the selected duration.</p>
+                                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", marginTop: 6, fontFamily: "var(--font-sans,system-ui)" }}>Minimum 200 Mbps · Unlimited data at this speed for the selected duration.</p>
+                            </div>
+                            <div>
+                                <p style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.7)", marginBottom: 8, fontFamily: "var(--font-sans,system-ui)" }}>Pricing Reference</p>
+                                <div style={{ overflowX: "auto" as const, borderRadius: 8, border: "1px solid rgba(255,255,255,0.06)" }}>
+                                    <table style={{ width: "100%", borderCollapse: "collapse" as const, fontSize: 11, fontFamily: "var(--font-sans,system-ui)" }}>
+                                        <thead>
+                                            <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                                                {["Speed", "1 Day", "7 Days", "30 Days", "60 Days"].map(h => (
+                                                    <th key={h} style={{ padding: "7px 10px", textAlign: "left" as const, color: "rgba(255,255,255,0.35)", fontWeight: 600, whiteSpace: "nowrap" as const }}>{h}</th>
+                                                ))}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {PRICING_TABLE.map(row => {
+                                                const isActive = mbps === row.speed;
+                                                return (
+                                                    <tr key={row.speed}
+                                                        onClick={() => setMbps(row.speed)}
+                                                        style={{ borderBottom: "1px solid rgba(255,255,255,0.03)", background: isActive ? "rgba(255,107,0,0.07)" : "transparent", cursor: "pointer", transition: "background 0.12s" }}>
+                                                        <td style={{ padding: "6px 10px", fontWeight: 700, color: isActive ? "rgb(255,107,0)" : "rgba(255,255,255,0.7)", whiteSpace: "nowrap" as const }}>{row.speed} Mbps</td>
+                                                        <td style={{ padding: "6px 10px", color: isActive ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.45)", whiteSpace: "nowrap" as const }}>${row["1_day"].toFixed(2)}</td>
+                                                        <td style={{ padding: "6px 10px", color: isActive ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.45)", whiteSpace: "nowrap" as const }}>${row["7_days"].toFixed(2)}</td>
+                                                        <td style={{ padding: "6px 10px", color: isActive ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.45)", whiteSpace: "nowrap" as const }}>${row["30_days"].toFixed(2)}</td>
+                                                        <td style={{ padding: "6px 10px", color: isActive ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.45)", whiteSpace: "nowrap" as const }}>${row["60_days"].toFixed(2)}</td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                             <p style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", fontFamily: "var(--font-sans,system-ui)" }}>Price calculated based on speed and duration.</p>
                             <button type="button" disabled={create.isPending}
                                 onClick={() => create.mutate({ product: "unlimited_residential", billing_type: "time", duration, mbps })}
-                                style={{ width: "80%", alignSelf: "center", padding: "10px", borderRadius: 11, border: "none", background: "hsl(24, 100%, 45%)", color: "rgba(255,255,255,0.93)", fontSize: 13.5, fontWeight: 600, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "var(--font-sans,system-ui)" }}>
+                                style={{ width: "80%", alignSelf: "center", padding: "10px", borderRadius: 11, border: "none", background: "hsl(24, 100%, 45%)", color: "rgba(255,255,255,0.93)", fontSize: 13.5, fontWeight: 600, cursor: create.isPending ? "not-allowed" : "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "var(--font-sans,system-ui)" }}>
                                 {create.isPending ? <><Icon icon="ph:spinner" style={{ fontSize: 16, animation: "spin 1s linear infinite" }} />Processing...</> : "Purchase Plan"}
                             </button>
                         </div>

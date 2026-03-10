@@ -14,6 +14,7 @@ const NAV_GROUPS = [
         label: "Main",
         items: [
             { href: "/dashboard", icon: "ph:squares-four", label: "Overview", comingSoon: false },
+            { href: "/dashboard/proxy-generator", icon: "ph:magic-wand", label: "Proxy Generator", comingSoon: false },
         ],
     },
     {

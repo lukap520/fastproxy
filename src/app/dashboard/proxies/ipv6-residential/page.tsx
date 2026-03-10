@@ -43,17 +43,42 @@ type Plan = {
     product: string;
 };
 
+function ExtraPlanRow({ plan, onRefetch }: { plan: Plan; onRefetch: () => void }) {
+    const toast = useToast();
+    const cancel = trpc.flashproxy.cancelPlan.useMutation({
+        onSuccess: () => { toast("success", "Extra plan cancelled."); onRefetch(); },
+        onError: e => toast("error", e.message),
+    });
+    const gbUsed = (plan.limits.bytes_used ?? 0) / 1e9;
+    const gbMax = plan.limits.max_gb ?? 0;
+    return (
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", borderRadius: 10, background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.04)" }}>
+            <div>
+                <p style={{ fontSize: 11.5, fontFamily: "monospace", color: "rgba(255,255,255,0.5)", fontWeight: 600 }}>{plan.plan_id.slice(0, 16)}…</p>
+                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-sans,system-ui)", marginTop: 2 }}>
+                    {plan.billing_type === "bandwidth" ? `${gbUsed.toFixed(2)} / ${gbMax} GB` : plan.expires_at ? `Exp. ${new Date(plan.expires_at).toLocaleDateString()}` : "Time-based"}
+                </p>
+            </div>
+            <button type="button" onClick={() => { if (confirm("Cancel this extra plan?")) cancel.mutate({ planId: plan.plan_id }); }} disabled={cancel.isPending}
+                style={{ padding: "6px 12px", borderRadius: 8, border: "1px solid rgba(239,68,68,0.2)", background: "rgba(239,68,68,0.05)", color: "rgba(239,68,68,0.7)", fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-sans,system-ui)" }}>
+                {cancel.isPending ? <Icon icon="ph:spinner" style={{ fontSize: 12, animation: "spin 1s linear infinite" }} /> : "Cancel"}
+            </button>
+        </div>
+    );
+}
+
 function IPv6Page({ product, title, subtitle, username_format }: { product: "ipv6-residential" | "ipv6-datacenter"; title: string; subtitle: string; username_format: string }) {
     const router = useRouter();
     const { isMobile, isTablet } = useWindowSize();
     const isSmall = isMobile || isTablet;
     const { data: user, isLoading: userLoading, error } = trpc.auth.me.useQuery();
     const { data: plans, isLoading: plansLoading, refetch } = trpc.flashproxy.listPlans.useQuery({ product, status: "active" });
-    const { data: pricing } = trpc.flashproxy.getPricing.useQuery();
     const toast = useToast();
 
     const [billingType, setBillingType] = useState<"bandwidth" | "time">("bandwidth");
     const [gb, setGb] = useState(10);
+    const [customGb, setCustomGb] = useState(false);
+    const [customGbVal, setCustomGbVal] = useState("");
     const [duration, setDuration] = useState<"1_hour" | "1_day" | "7_days" | "30_days">("7_days");
     const [mbps, setMbps] = useState(100);
     const [quantity, setQuantity] = useState(10);
@@ -85,9 +110,12 @@ function IPv6Page({ product, title, subtitle, username_format }: { product: "ipv
 
     const activePlans: Plan[] = plans?.items ?? [];
     const activePlan = activePlans[0] ?? null;
-    const pricePerGb = pricing?.[product]?.price_per_gb_cents ? pricing[product].price_per_gb_cents / 100 : 1.00;
-    const totalCost = billingType === "bandwidth" ? +(gb * pricePerGb).toFixed(2) : 0;
-    const canAfford = (user.balance ?? 0) >= totalCost || billingType === "time";
+    const pricePerGb = 1.00;
+    const pricePerDayPer100Mbps = 0;
+    const activeGb = customGb ? (parseFloat(customGbVal) || 0) : gb;
+    const totalCost = billingType === "bandwidth" ? +(activeGb * pricePerGb).toFixed(2) : 0;
+    const canAfford = billingType === "time" ? true : (user.balance ?? 0) >= totalCost && totalCost > 0;
+    const DURATION_LABELS: Record<string, string> = { "1_hour": "1 Hour", "1_day": "1 Day", "7_days": "7 Days", "30_days": "30 Days" };
 
     const generateProxies = () => {
         if (!activePlan) return "";
@@ -116,133 +144,103 @@ function IPv6Page({ product, title, subtitle, username_format }: { product: "ipv
             </motion.div>
 
             {activePlan ? (
-                <div style={{ display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 280px", gap: 18, alignItems: "start" }}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.06 }}
-                            style={{ borderRadius: 16, background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.055)", overflow: "hidden" }}>
-                            <div style={{ padding: "18px 20px", borderBottom: "1px solid rgba(255,255,255,0.04)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: "rgb(52,211,153)", boxShadow: "0 0 8px rgba(52,211,153,0.6)" }} />
-                                    <span style={{ fontSize: 13, fontWeight: 700, color: "#FFFFFF", fontFamily: "var(--font-sans,system-ui)" }}>Active Plan</span>
-                                </div>
-                                <span style={{ fontSize: 10, padding: "2px 9px", borderRadius: 6, background: "rgba(52,211,153,0.08)", border: "1px solid rgba(52,211,153,0.18)", color: "rgba(52,211,153,0.8)", fontWeight: 600, fontFamily: "var(--font-sans,system-ui)" }}>ONLINE</span>
-                            </div>
-                            <div style={{ padding: "18px 20px" }}>
-                                {activePlan.billing_type === "bandwidth" ? (
-                                    <>
-                                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                                            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontFamily: "var(--font-sans,system-ui)" }}>{gbUsed.toFixed(3)} GB used</span>
-                                            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontFamily: "var(--font-sans,system-ui)" }}>{gbMax} GB total</span>
-                                        </div>
-                                        <div style={{ height: 5, borderRadius: 99, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
-                                            <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.7 }} style={{ height: "100%", borderRadius: 99, background: "rgb(52,211,153)" }} />
-                                        </div>
-                                    </>
-                                ) : activePlan.expires_at ? (
-                                    <p style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", fontFamily: "var(--font-sans,system-ui)" }}>
-                                        Expires {new Date(activePlan.expires_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                                    </p>
-                                ) : null}
-                            </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+                    {activePlans.length > 1 && (
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                            style={{ padding: "12px 16px", borderRadius: 12, background: "rgba(251,191,36,0.06)", border: "1px solid rgba(251,191,36,0.2)", display: "flex", alignItems: "center", gap: 10 }}>
+                            <Icon icon="ph:warning" style={{ fontSize: 16, color: "rgba(251,191,36,0.8)", flexShrink: 0 }} />
+                            <p style={{ fontSize: 12, color: "rgba(251,191,36,0.9)", fontFamily: "var(--font-sans,system-ui)", lineHeight: 1.5 }}>
+                                You have <strong>{activePlans.length} active plans</strong>. Cancel the extras below to clean up.
+                            </p>
                         </motion.div>
-
-                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-                            style={{ borderRadius: 16, background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.055)", overflow: "hidden" }}>
-                            <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                                <span style={{ fontSize: 13.5, fontWeight: 700, color: "#FFFFFF", fontFamily: "var(--font-sans,system-ui)" }}>Credentials</span>
-                            </div>
-                            <div style={{ padding: "16px 20px", display: "flex", flexDirection: "column", gap: 8 }}>
-                                <CredentialRow label="Username" value={activePlan.proxy_username} mono />
-                                <CredentialRow label="Password" value={activePlan.proxy_password} mono />
-                                <CredentialRow label="Host (HTTP)" value={`${activePlan.connection.hostname}:${activePlan.connection.port_http}`} mono />
-                                {activePlan.connection.port_socks && <CredentialRow label="Host (SOCKS5)" value={`${activePlan.connection.hostname}:${activePlan.connection.port_socks}`} mono />}
-                                <CredentialRow label="Full String" value={activePlan.connection.format} mono />
-                                <div style={{ padding: "10px 14px", borderRadius: 10, background: "rgba(255,107,0,0.04)", border: "1px solid rgba(255,107,0,0.12)" }}>
-                                    <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,107,0,0.8)", fontFamily: "var(--font-sans,system-ui)", marginBottom: 4, letterSpacing: "0.06em" }}>USERNAME FORMAT</p>
-                                    <code style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", fontFamily: "monospace" }}>{username_format}</code>
-                                </div>
-                            </div>
-                        </motion.div>
-
-                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}
-                            style={{ borderRadius: 16, background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.055)", overflow: "hidden" }}>
-                            <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                                <span style={{ fontSize: 14, fontWeight: 700, color: "rgba(235,235,235,0.88)", fontFamily: "var(--font-heading,system-ui)" }}>Generator</span>
-                            </div>
-                            <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: 14 }}>
-                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                                    <div>
-                                        <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.7)", marginBottom: 8, fontFamily: "var(--font-sans,system-ui)" }}>Country</label>
-                                        <select value={country} onChange={e => setCountry(e.target.value)}
-                                            style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)", color: "rgba(255,255,255,0.8)", fontSize: 13, outline: "none", appearance: "none", WebkitAppearance: "none" }}>
-                                            {COUNTRIES_SHORT.map(c => <option key={c} value={c} style={{ background: "#0a0a0a" }}>{c === "any" ? "Any" : c}</option>)}
-                                        </select>
+                    )}
+                    <div style={{ display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 280px", gap: 18, alignItems: "start" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.06 }}
+                                style={{ borderRadius: 16, background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.055)", overflow: "hidden" }}>
+                                <div style={{ padding: "18px 20px", borderBottom: "1px solid rgba(255,255,255,0.04)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                        <div style={{ width: 8, height: 8, borderRadius: "50%", background: "rgb(52,211,153)", boxShadow: "0 0 8px rgba(52,211,153,0.6)" }} />
+                                        <span style={{ fontSize: 13, fontWeight: 700, color: "#FFFFFF", fontFamily: "var(--font-sans,system-ui)" }}>Active Plan</span>
                                     </div>
-                                    <div>
-                                        <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.7)", marginBottom: 8, fontFamily: "var(--font-sans,system-ui)" }}>Quantity</label>
-                                        <input type="number" min="1" max="10000" value={quantity} onChange={e => setQuantity(parseInt(e.target.value) || 1)}
-                                            style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)", color: "rgba(255,255,255,0.8)", fontSize: 13, outline: "none" }} />
-                                    </div>
+                                    <span style={{ fontSize: 10, padding: "2px 9px", borderRadius: 6, background: "rgba(52,211,153,0.08)", border: "1px solid rgba(52,211,153,0.18)", color: "rgba(52,211,153,0.8)", fontWeight: 600, fontFamily: "var(--font-sans,system-ui)" }}>ONLINE</span>
                                 </div>
-                                <div style={{ position: "relative" }}>
-                                    <textarea readOnly value={generateProxies()} style={{ width: "100%", height: 120, padding: "12px 14px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.05)", background: "#0a0a0a", color: "rgba(255,255,255,0.7)", fontSize: 11, fontFamily: "monospace", resize: "none", outline: "none" }} />
-                                    <button type="button" onClick={() => { navigator.clipboard.writeText(generateProxies()).then(() => { setCopiedAll(true); setTimeout(() => setCopiedAll(false), 2000); }); }}
-                                        style={{ position: "absolute", top: 8, right: 8, padding: "5px 10px", borderRadius: 7, border: "1px solid rgba(255,255,255,0.08)", background: copiedAll ? "rgba(52,211,153,0.1)" : "rgba(255,255,255,0.04)", color: copiedAll ? "rgb(52,211,153)" : "rgba(255,255,255,0.5)", fontSize: 11, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4, fontFamily: "var(--font-sans,system-ui)" }}>
-                                        <Icon icon={copiedAll ? "ph:check-bold" : "ph:copy"} style={{ fontSize: 12 }} />
-                                        {copiedAll ? "Copied!" : "Copy all"}
+                                <div style={{ padding: "18px 20px" }}>
+                                    {activePlan.billing_type === "bandwidth" ? (
+                                        <>
+                                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                                                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontFamily: "var(--font-sans,system-ui)" }}>{gbUsed.toFixed(3)} GB used</span>
+                                                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontFamily: "var(--font-sans,system-ui)" }}>{gbMax} GB total</span>
+                                            </div>
+                                            <div style={{ height: 5, borderRadius: 99, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
+                                                <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.7 }} style={{ height: "100%", borderRadius: 99, background: "rgb(52,211,153)" }} />
+                                            </div>
+                                        </>
+                                    ) : activePlan.expires_at ? (
+                                        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", fontFamily: "var(--font-sans,system-ui)" }}>
+                                            Expires {new Date(activePlan.expires_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                                        </p>
+                                    ) : null}
+                                </div>
+                            </motion.div>
+
+                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.14 }}
+                                style={{ borderRadius: 14, background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.04)", padding: "16px 20px" }}>
+                                <p style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.45)", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "0.07em", textTransform: "uppercase" as const, marginBottom: 14 }}>Manage Plan</p>
+                                <div style={{ display: "flex", gap: 10 }}>
+                                    <button type="button" onClick={() => setShowExtend(v => !v)}
+                                        style={{ flex: 1, padding: "10px", borderRadius: 10, border: "1px solid rgba(255,107,0,0.25)", background: "rgba(255,107,0,0.07)", color: "rgba(255,107,0,0.85)", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-sans,system-ui)", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                                        <Icon icon="ph:plus-circle" style={{ fontSize: 14 }} /> Extend
+                                    </button>
+                                    <button type="button" onClick={() => { if (confirm("Cancel plan?")) cancel.mutate({ planId: activePlan.plan_id }); }} disabled={cancel.isPending}
+                                        style={{ padding: "10px 16px", borderRadius: 10, border: "1px solid rgba(239,68,68,0.2)", background: "rgba(239,68,68,0.05)", color: "rgba(239,68,68,0.7)", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-sans,system-ui)" }}>
+                                        Cancel
                                     </button>
                                 </div>
-                            </div>
-                        </motion.div>
+                                <AnimatePresence>
+                                    {showExtend && (
+                                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} style={{ overflow: "hidden", marginTop: 12 }}>
+                                            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 7, marginBottom: 10 }}>
+                                                {[5, 10, 25, 50, 100, 200].map(v => (
+                                                    <button key={v} type="button" onClick={() => setAddGb(v)}
+                                                        style={{ padding: "9px", borderRadius: 9, border: addGb === v ? "1px solid rgba(255,107,0,0.4)" : "1px solid rgba(255,255,255,0.06)", background: addGb === v ? "rgba(255,107,0,0.08)" : "rgba(255,255,255,0.018)", color: addGb === v ? "rgb(255,107,0)" : "rgba(255,255,255,0.4)", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+                                                        +{v} GB
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            <button type="button" disabled={extend.isPending} onClick={() => extend.mutate({ planId: activePlan.plan_id, add_bandwidth_gb: addGb })}
+                                                style={{ width: "100%", padding: "10px", borderRadius: 10, border: "none", background: "hsl(24, 100%, 45%)", color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-sans,system-ui)", display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
+                                                {extend.isPending ? <><Icon icon="ph:spinner" style={{ fontSize: 14, animation: "spin 1s linear infinite" }} />Processing…</> : `Add ${addGb} GB`}
+                                            </button>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </motion.div>
+                        </div>
 
-                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.14 }}
-                            style={{ borderRadius: 14, background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.04)", padding: "16px 20px" }}>
-                            <p style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.45)", fontFamily: "var(--font-sans,system-ui)", letterSpacing: "0.07em", textTransform: "uppercase" as const, marginBottom: 14 }}>Manage Plan</p>
-                            <div style={{ display: "flex", gap: 10 }}>
-                                <button type="button" onClick={() => setShowExtend(v => !v)}
-                                    style={{ flex: 1, padding: "10px", borderRadius: 10, border: "1px solid rgba(255,107,0,0.25)", background: "rgba(255,107,0,0.07)", color: "rgba(255,107,0,0.85)", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-sans,system-ui)", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-                                    <Icon icon="ph:plus-circle" style={{ fontSize: 14 }} /> Extend
-                                </button>
-                                <button type="button" onClick={() => { if (confirm("Cancel plan?")) cancel.mutate({ planId: activePlan.plan_id }); }} disabled={cancel.isPending}
-                                    style={{ padding: "10px 16px", borderRadius: 10, border: "1px solid rgba(239,68,68,0.2)", background: "rgba(239,68,68,0.05)", color: "rgba(239,68,68,0.7)", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-sans,system-ui)" }}>
-                                    Cancel
-                                </button>
+                        <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.08 }}
+                            style={{ borderRadius: 16, background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.055)", overflow: "hidden", position: "sticky", top: 24 }}>
+                            <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                                <p style={{ fontSize: 13.5, fontWeight: 700, color: "#FFFFFF", fontFamily: "var(--font-sans,system-ui)" }}>Plan Info</p>
                             </div>
-                            <AnimatePresence>
-                                {showExtend && (
-                                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} style={{ overflow: "hidden", marginTop: 12 }}>
-                                        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 7, marginBottom: 10 }}>
-                                            {[5, 10, 25, 50, 100, 200].map(v => (
-                                                <button key={v} type="button" onClick={() => setAddGb(v)}
-                                                    style={{ padding: "9px", borderRadius: 9, border: addGb === v ? "1px solid rgba(255,107,0,0.4)" : "1px solid rgba(255,255,255,0.06)", background: addGb === v ? "rgba(255,107,0,0.08)" : "rgba(255,255,255,0.018)", color: addGb === v ? "rgb(255,107,0)" : "rgba(255,255,255,0.4)", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
-                                                    +{v} GB
-                                                </button>
-                                            ))}
-                                        </div>
-                                        <button type="button" disabled={extend.isPending} onClick={() => extend.mutate({ planId: activePlan.plan_id, add_bandwidth_gb: addGb })}
-                                            style={{ width: "100%", padding: "10px", borderRadius: 10, border: "none", background: "hsl(24, 100%, 45%)", color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-sans,system-ui)", display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
-                                            {extend.isPending ? <><Icon icon="ph:spinner" style={{ fontSize: 14, animation: "spin 1s linear infinite" }} />Processing…</> : `Add ${addGb} GB`}
-                                        </button>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
+                            <div style={{ padding: "16px 20px" }}>
+                                {[["Type", activePlan.billing_type === "bandwidth" ? "Bandwidth" : "Time-based"], ...(activePlan.expires_at ? [["Expires", new Date(activePlan.expires_at).toLocaleDateString()]] : [])].map(([k, v]) => (
+                                    <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                                        <span style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-sans,system-ui)" }}>{k}</span>
+                                        <span style={{ fontSize: 12, color: "#FFFFFF", fontFamily: "var(--font-sans,system-ui)", fontWeight: 500 }}>{v}</span>
+                                    </div>
+                                ))}
+                            </div>
                         </motion.div>
                     </div>
-
-                    <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.08 }}
-                        style={{ borderRadius: 16, background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.055)", overflow: "hidden", position: "sticky", top: 24 }}>
-                        <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                            <p style={{ fontSize: 13.5, fontWeight: 700, color: "#FFFFFF", fontFamily: "var(--font-sans,system-ui)" }}>Plan Info</p>
-                        </div>
-                        <div style={{ padding: "16px 20px" }}>
-                            {[["Type", activePlan.billing_type === "bandwidth" ? "Bandwidth" : "Time-based"], ...(activePlan.expires_at ? [["Expires", new Date(activePlan.expires_at).toLocaleDateString()]] : [])].map(([k, v]) => (
-                                <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                                    <span style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-sans,system-ui)" }}>{k}</span>
-                                    <span style={{ fontSize: 12, color: "#FFFFFF", fontFamily: "var(--font-sans,system-ui)", fontWeight: 500 }}>{v}</span>
-                                </div>
+                    {activePlans.length > 1 && (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-sans,system-ui)" }}>Extra Plans (cancel to clean up)</p>
+                            {activePlans.slice(1).map(p => (
+                                <ExtraPlanRow key={p.plan_id} plan={p} onRefetch={refetch} />
                             ))}
                         </div>
-                    </motion.div>
+                    )}
                 </div>
             ) : (
                 <div style={{ display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 440px", gap: 20, alignItems: "start" }}>
@@ -252,7 +250,7 @@ function IPv6Page({ product, title, subtitle, username_format }: { product: "ipv
                             { icon: "ph:network", label: "IPv6 residential IPs", sub: "Full IPv6 support from real residential networks. Access IPv6-only targets and APIs." },
                             { icon: "ph:globe", label: "Broad geo coverage", sub: "195+ countries with city-level targeting via the standard username format." },
                             { icon: "ph:shuffle", label: "Flexible billing", sub: "Pay per GB or per hour/day/month. Scale up or down as needed." },
-                            { icon: "ph:shield-check", label: "HTTP & SOCKS5", sub: "Both protocols fully supported via the v3-v6-resi.proxyserver.bot endpoint." },
+                            { icon: "ph:shield-check", label: "HTTP & SOCKS5", sub: "Both protocols fully supported via the v3-v6-resi.fastproxy.to endpoint." },
                         ] : [
                             { icon: "ph:cpu", label: "IPv6 datacenter", sub: "Blazing-fast IPv6 datacenter IPs. Ideal for IPv6-aware applications and APIs." },
                             { icon: "ph:lightning-fill", label: "Low latency", sub: "Datacenter-grade speed with full IPv6 protocol support." },
@@ -292,21 +290,46 @@ function IPv6Page({ product, title, subtitle, username_format }: { product: "ipv
                                 <>
                                     <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
                                         {[5, 10, 25, 50, 100, 200].map(v => {
-                                            const on = gb === v;
+                                            const on = !customGb && gb === v;
                                             return (
-                                                <button key={v} type="button" onClick={() => setGb(v)}
+                                                <button key={v} type="button" onClick={() => { setCustomGb(false); setGb(v); }}
                                                     style={{ padding: "10px", borderRadius: 10, border: on ? "1px solid rgba(255,107,0,0.4)" : "1px solid rgba(255,255,255,0.06)", background: on ? "rgba(255,107,0,0.08)" : "rgba(255,255,255,0.018)", color: on ? "rgb(255,107,0)" : "rgba(255,255,255,0.8)", fontSize: 12, fontWeight: 700, cursor: "pointer", transition: "all 0.13s" }}>
                                                     {v} GB
                                                 </button>
                                             );
                                         })}
                                     </div>
+                                    <button type="button" onClick={() => setCustomGb(true)}
+                                        style={{ fontSize: 12, color: "rgba(255,107,0,0.85)", background: "rgba(255,107,0,0.05)", border: customGb ? "1px solid rgba(255,107,0,0.4)" : "1px solid rgba(255,107,0,0.15)", borderRadius: 8, cursor: "pointer", padding: "6px 12px", fontWeight: 600, width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontFamily: "var(--font-sans,system-ui)" }}>
+                                        <Icon icon={customGb ? "ph:pencil-simple-fill" : "ph:plus-bold"} style={{ fontSize: 13 }} />
+                                        {customGb ? "Editing custom amount" : "Enter custom amount"}
+                                    </button>
+                                    <AnimatePresence>
+                                        {customGb && (
+                                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} style={{ overflow: "hidden" }}>
+                                                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                                    <input type="number" min="1" placeholder="e.g. 75" value={customGbVal} onChange={e => setCustomGbVal(e.target.value)} autoFocus
+                                                        style={{ flex: 1, padding: "9px 13px", borderRadius: 9, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.025)", color: "rgba(235,235,235,0.88)", fontSize: 13, outline: "none" }} />
+                                                    <span style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-sans,system-ui)" }}>GB</span>
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                     <div style={{ padding: "14px 16px", borderRadius: 12, background: "rgba(255,255,255,0.018)", border: "1px solid rgba(255,255,255,0.055)" }}>
+                                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                                            <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", fontFamily: "var(--font-sans,system-ui)" }}>Rate</span>
+                                            <span style={{ fontSize: 12, color: "#fff", fontWeight: 500, fontFamily: "var(--font-sans,system-ui)" }}>${pricePerGb.toFixed(2)} / GB</span>
+                                        </div>
+                                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                                            <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", fontFamily: "var(--font-sans,system-ui)" }}>Bandwidth</span>
+                                            <span style={{ fontSize: 12, color: "#fff", fontWeight: 500, fontFamily: "var(--font-sans,system-ui)" }}>{activeGb || 0} GB</span>
+                                        </div>
+                                        <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "8px 0" }} />
                                         <div style={{ display: "flex", justifyContent: "space-between" }}>
                                             <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.8)", fontFamily: "var(--font-sans,system-ui)" }}>Total</span>
                                             <span style={{ fontFamily: "var(--font-heading,system-ui)", fontSize: 20, fontWeight: 700, letterSpacing: "-0.03em", color: "#FFFFFF" }}>${totalCost.toFixed(2)}</span>
                                         </div>
-                                        {!canAfford && <p style={{ fontSize: 11, color: "rgba(239,68,68,0.7)", marginTop: 8, fontFamily: "var(--font-sans,system-ui)" }}>Insufficient balance.</p>}
+                                        {!canAfford && activeGb > 0 && <p style={{ fontSize: 11, color: "rgba(239,68,68,0.7)", marginTop: 8, fontFamily: "var(--font-sans,system-ui)" }}>Insufficient balance.</p>}
                                     </div>
                                 </>
                             ) : (
@@ -327,7 +350,27 @@ function IPv6Page({ product, title, subtitle, username_format }: { product: "ipv
                                         <input type="number" min="10" max="10000" step="10" value={mbps} onChange={e => setMbps(parseInt(e.target.value) || 100)}
                                             style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)", color: "rgba(255,255,255,0.8)", fontSize: 13, outline: "none" }} />
                                     </div>
-                                    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-sans,system-ui)" }}>Price calculated based on duration and speed.</p>
+                                    <div style={{ padding: "14px 16px", borderRadius: 12, background: "rgba(255,255,255,0.018)", border: "1px solid rgba(255,255,255,0.055)" }}>
+                                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                                            <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", fontFamily: "var(--font-sans,system-ui)" }}>Duration</span>
+                                            <span style={{ fontSize: 12, color: "#fff", fontWeight: 500, fontFamily: "var(--font-sans,system-ui)" }}>{DURATION_LABELS[duration]}</span>
+                                        </div>
+                                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                                            <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", fontFamily: "var(--font-sans,system-ui)" }}>Speed</span>
+                                            <span style={{ fontSize: 12, color: "#fff", fontWeight: 500, fontFamily: "var(--font-sans,system-ui)" }}>{mbps} Mbps</span>
+                                        </div>
+                                        {pricePerDayPer100Mbps > 0 && (
+                                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                                                <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", fontFamily: "var(--font-sans,system-ui)" }}>Rate</span>
+                                                <span style={{ fontSize: 12, color: "#fff", fontWeight: 500, fontFamily: "var(--font-sans,system-ui)" }}>${pricePerDayPer100Mbps.toFixed(2)} / day / 100 Mbps</span>
+                                            </div>
+                                        )}
+                                        <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "8px 0" }} />
+                                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                                            <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.8)", fontFamily: "var(--font-sans,system-ui)" }}>Total</span>
+                                            <span style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", fontFamily: "var(--font-sans,system-ui)", fontStyle: "italic" }}>Calculated at checkout</span>
+                                        </div>
+                                    </div>
                                 </>
                             )}
                             <button type="button" disabled={create.isPending || (billingType === "bandwidth" && !canAfford)}
@@ -349,7 +392,7 @@ export default function IPv6ResidentialPage() {
             product="ipv6-residential"
             title="IPv6 Residential"
             subtitle={<>Real IPv6 residential IPs. <span style={{ color: "#FFFFFF", fontWeight: 600 }}>Per-GB or time-based</span> · 195+ countries · HTTP &amp; SOCKS5</> as unknown as string}
-            username_format="USERNAME-package-ipv6:PASSWORD@v3-v6-resi.proxyserver.bot:30"
+            username_format="USERNAME-package-ipv6:PASSWORD@v3-v6-resi.fastproxy.to:30"
         />
     );
 }

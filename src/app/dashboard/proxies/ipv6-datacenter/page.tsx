@@ -48,7 +48,6 @@ export default function IPv6DatacenterPage() {
     const isSmall = isMobile || isTablet;
     const { data: user, isLoading: userLoading, error } = trpc.auth.me.useQuery();
     const { data: plans, isLoading: plansLoading, refetch } = trpc.flashproxy.listPlans.useQuery({ product: "ipv6-datacenter", status: "active" });
-    const { data: pricing } = trpc.flashproxy.getPricing.useQuery();
     const toast = useToast();
 
     const [billingType, setBillingType] = useState<"bandwidth" | "time">("bandwidth");
@@ -83,9 +82,9 @@ export default function IPv6DatacenterPage() {
 
     const activePlans: Plan[] = plans?.items ?? [];
     const activePlan = activePlans[0] ?? null;
-    const pricePerGb = pricing?.["ipv6-datacenter"]?.price_per_gb_cents ? pricing["ipv6-datacenter"].price_per_gb_cents / 100 : 0.50;
+    const pricePerGb = 0.50;
     const totalCost = billingType === "bandwidth" ? +(gb * pricePerGb).toFixed(2) : 0;
-    const canAfford = (user.balance ?? 0) >= totalCost || billingType === "time";
+    const canAfford = billingType === "time" ? true : (user.balance ?? 0) >= totalCost && totalCost > 0;
 
     const generateProxies = () => {
         if (!activePlan) return "";
@@ -137,46 +136,6 @@ export default function IPv6DatacenterPage() {
                                 ) : activePlan.expires_at ? (
                                     <p style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", fontFamily: "var(--font-sans,system-ui)" }}>Expires {new Date(activePlan.expires_at).toLocaleDateString()}</p>
                                 ) : null}
-                            </div>
-                        </motion.div>
-
-                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-                            style={{ borderRadius: 16, background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.055)", overflow: "hidden" }}>
-                            <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                                <span style={{ fontSize: 13.5, fontWeight: 700, color: "#FFFFFF", fontFamily: "var(--font-sans,system-ui)" }}>Credentials</span>
-                            </div>
-                            <div style={{ padding: "16px 20px", display: "flex", flexDirection: "column", gap: 8 }}>
-                                <CredentialRow label="Username" value={activePlan.proxy_username} mono />
-                                <CredentialRow label="Password" value={activePlan.proxy_password} mono />
-                                <CredentialRow label="Host (HTTP)" value={`${activePlan.connection.hostname}:${activePlan.connection.port_http}`} mono />
-                                {activePlan.connection.port_socks && <CredentialRow label="Host (SOCKS5)" value={`${activePlan.connection.hostname}:${activePlan.connection.port_socks}`} mono />}
-                                <CredentialRow label="Full String" value={activePlan.connection.format} mono />
-                                <div style={{ padding: "10px 14px", borderRadius: 10, background: "rgba(255,107,0,0.04)", border: "1px solid rgba(255,107,0,0.12)" }}>
-                                    <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,107,0,0.8)", fontFamily: "var(--font-sans,system-ui)", marginBottom: 4, letterSpacing: "0.06em" }}>USERNAME FORMAT</p>
-                                    <code style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", fontFamily: "monospace" }}>USERNAME:PASSWORD@v3-v6-dc.proxyserver.bot:50</code>
-                                </div>
-                            </div>
-                        </motion.div>
-
-                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}
-                            style={{ borderRadius: 16, background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.055)", overflow: "hidden" }}>
-                            <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                                <span style={{ fontSize: 14, fontWeight: 700, color: "rgba(235,235,235,0.88)", fontFamily: "var(--font-heading,system-ui)" }}>Generator</span>
-                            </div>
-                            <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: 14 }}>
-                                <div>
-                                    <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.7)", marginBottom: 8, fontFamily: "var(--font-sans,system-ui)" }}>Quantity</label>
-                                    <input type="number" min="1" max="10000" value={quantity} onChange={e => setQuantity(parseInt(e.target.value) || 1)}
-                                        style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)", color: "rgba(255,255,255,0.8)", fontSize: 13, outline: "none" }} />
-                                </div>
-                                <div style={{ position: "relative" }}>
-                                    <textarea readOnly value={generateProxies()} style={{ width: "100%", height: 120, padding: "12px 14px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.05)", background: "#0a0a0a", color: "rgba(255,255,255,0.7)", fontSize: 11, fontFamily: "monospace", resize: "none", outline: "none" }} />
-                                    <button type="button" onClick={() => { navigator.clipboard.writeText(generateProxies()).then(() => { setCopiedAll(true); setTimeout(() => setCopiedAll(false), 2000); }); }}
-                                        style={{ position: "absolute", top: 8, right: 8, padding: "5px 10px", borderRadius: 7, border: "1px solid rgba(255,255,255,0.08)", background: copiedAll ? "rgba(52,211,153,0.1)" : "rgba(255,255,255,0.04)", color: copiedAll ? "rgb(52,211,153)" : "rgba(255,255,255,0.5)", fontSize: 11, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4, fontFamily: "var(--font-sans,system-ui)" }}>
-                                        <Icon icon={copiedAll ? "ph:check-bold" : "ph:copy"} style={{ fontSize: 12 }} />
-                                        {copiedAll ? "Copied!" : "Copy all"}
-                                    </button>
-                                </div>
                             </div>
                         </motion.div>
 
